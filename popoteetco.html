@@ -1,0 +1,141 @@
+<script type="module">
+// ---------------- FIREBASE ----------------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAJFyX4n6s5ER6_LiS22JtJ01VBvR8YM0g",
+  authDomain: "popotecompagnie-2e79f.firebaseapp.com",
+  projectId: "popotecompagnie-2e79f",
+  storageBucket: "popotecompagnie-2e79f.appspot.com",
+  messagingSenderId: "643014117897",
+  appId: "1:643014117897:web:254fd7aad817ed902086d8"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ---------------- UTILITAIRES FIRESTORE ----------------
+async function saveUser(user){
+  await setDoc(doc(db,"users",user.character), user);
+}
+
+async function getUsers(){
+  let users = {};
+  const snap = await getDocs(collection(db,"users"));
+  snap.forEach(d => users[d.id] = d.data());
+  return users;
+}
+
+async function savePopote(month,pseudo,data){
+  await setDoc(doc(db,"popote","month-"+month), {[pseudo]:data},{merge:true});
+}
+
+async function getPopote(month){
+  let monthData = {};
+  const monthDoc = await getDoc(doc(db,"popote","month-"+month));
+  if(monthDoc.exists()) monthData = monthDoc.data();
+  return monthData;
+}
+
+// ---------------- APPLICATION ----------------
+let currentUser = null;
+
+function hideAll(){ ["home","register","login","main","popote","members"].forEach(id=>document.getElementById(id).classList.add("hidden")); }
+function navigate(page){ hideAll(); document.getElementById(page).classList.remove("hidden"); if(page==="main") showMain(); if(page==="popote") showPopote(); }
+
+async function register(){
+  const nom=document.getElementById("nom").value.trim();
+  const prenom=document.getElementById("prenom").value.trim();
+  const pseudo=document.getElementById("pseudo").value.trim();
+  const password=document.getElementById("password").value.trim();
+  if(!nom||!prenom||!pseudo||!password){ document.getElementById("registerMsg").innerText="Tous les champs sont requis."; return; }
+
+  let newUser = {nom, prenom, character:pseudo, password, createdAt:new Date().toLocaleDateString(), role:pseudo==="PM"?"Admin":"Membre"};
+
+  await saveUser(newUser);
+  document.getElementById("registerMsg").innerText="Compte créé ! Connectez-vous.";
+  navigate("login");
+}
+
+async function login(){
+  const pseudo=document.getElementById("loginPseudo").value.trim();
+  const password=document.getElementById("loginPassword").value.trim();
+  const users=await getUsers();
+  if(!users[pseudo]||users[pseudo].password!==password){ document.getElementById("loginMsg").innerText="Pseudo ou mot de passe incorrect."; return; }
+  currentUser=pseudo;
+  navigate("main");
+}
+
+async function showMain(){
+  if(!currentUser) return;
+  const users=await getUsers();
+  document.getElementById("welcome").innerText="Bienvenue "+currentUser+" ("+users[currentUser].role+")";
+}
+
+function logout(){ currentUser=null; navigate("home"); }
+
+// ---------------- POPOTE ----------------
+function monthName(m){ return ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"][m-1]; }
+
+async function showPopote(){
+  hideAll(); document.getElementById("popote").classList.remove("hidden");
+  const monthDiv=document.getElementById("monthButtons"); monthDiv.innerHTML="";
+  for(let m=1;m<=12;m++){
+    let btn=document.createElement("button"); btn.innerText=monthName(m); btn.onclick=(()=>showMonth(m)); monthDiv.appendChild(btn);
+  }
+}
+
+async function showMonth(month){
+  const users=await getUsers();
+  const monthDiv=document.getElementById("monthTable"); monthDiv.innerHTML="";
+  const monthData=await getPopote(month);
+
+  let table=document.createElement("table");
+  let header=table.insertRow();
+  ["Nom","Prénom","Eau","Soda","Gourmandise","Totaux"].forEach(h=>{ let th=document.createElement("th"); th.innerText=h; header.appendChild(th); });
+
+  const prices={Eau:0.5,Soda:0.7,Gourmandise:0.5};
+
+  for(let u in users){
+    let row=table.insertRow();
+    row.insertCell().innerText=users[u].nom;
+    row.insertCell().innerText=users[u].prenom;
+
+    ["Eau","Soda","Gourmandise"].forEach(p=>{
+      let cell=row.insertCell();
+      let inp=document.createElement("input"); inp.type="number"; inp.min=0; inp.value=(monthData[u]&&monthData[u][p])||0;
+      if(users[currentUser].role!=="Admin") inp.disabled=true;
+
+      inp.oninput=async ()=>{
+        if(users[currentUser].role!=="Admin") return;
+        if(!monthData[u]) monthData[u]={};
+        monthData[u][p]=parseFloat(inp.value)||0;
+        await savePopote(month,u,monthData[u]);
+        updateTotals(table,prices);
+      };
+      cell.appendChild(inp);
+    });
+    row.insertCell(); // Totaux
+  }
+
+  monthDiv.appendChild(table);
+  updateTotals(table,prices);
+}
+
+function updateTotals(table,prices){
+  for(let i=1;i<table.rows.length;i++){
+    let row=table.rows[i]; 
+    let total=0;
+    ["Eau","Soda","Gourmandise"].forEach((p,j)=>{
+      let val=parseFloat(row.cells[j+2].firstChild.value)||0;
+      total+=val*prices[p];
+    });
+    row.cells[5].innerText=total.toFixed(2)+" €";
+  }
+}
+
+function popoteCompagnie(){ alert("Popote & Compagnie (non implémenté)"); }
+
+</script>
