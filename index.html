@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Popote & Compagnie</title>
+<style>
+  body { font-family: Arial; background:#1e1e2f; color:#eee; text-align:center; padding-top:20px; }
+  .card { background:#2c2c44; padding:20px; border-radius:10px; display:inline-block; width:700px; margin-bottom:20px; }
+  input { width:60px; padding:5px; margin:2px; border-radius:5px; border:none; }
+  button { padding:8px 15px; margin:3px; border:none; border-radius:5px; background:#ff9800; color:#000; cursor:pointer; }
+  table { margin:auto; border-collapse:collapse; margin-top:10px; }
+  th, td { border:1px solid #fff; padding:5px 10px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+
+<!-- INSCRIPTION -->
+<div id="register" class="card">
+  <h2>Créer un compte</h2>
+  <input id="nom" placeholder="Nom">
+  <input id="prenom" placeholder="Prénom">
+  <input id="pseudo" placeholder="Nom du personnage">
+  <input id="password" type="password" placeholder="Mot de passe">
+  <button onclick="register()">Créer</button>
+  <p id="registerMsg"></p>
+</div>
+
+<!-- CONNEXION -->
+<div id="login" class="card hidden">
+  <h2>Connexion</h2>
+  <input id="loginPseudo" placeholder="Pseudo">
+  <input id="loginPassword" type="password" placeholder="Mot de passe">
+  <button onclick="login()">Se connecter</button>
+  <p id="loginMsg"></p>
+</div>
+
+<!-- PAGE PRINCIPALE -->
+<div id="main" class="card hidden">
+  <h2 id="welcome"></h2>
+  <button onclick="navigate('popote')">Popote</button>
+  <button onclick="popoteCompagnie()">Popote & Compagnie</button>
+  <button onclick="showMembers()">Effectif</button>
+  <br><br>
+  <button onclick="logout()">Déconnexion</button>
+</div>
+
+<!-- EFFECTIF -->
+<div id="members" class="card hidden">
+  <h2>Effectif</h2>
+  <p id="membersInfo"></p>
+  <table id="membersTable">
+    <tr>
+      <th>Nom</th>
+      <th>Prénom</th>
+      <th>Date d'inscription</th>
+      <th>Action</th>
+    </tr>
+  </table>
+  <br>
+  <button id="showArchivedBtn" class="hidden" onclick="showArchived()">Voir les membres archivés</button>
+  <div id="archivedMembers" class="hidden">
+    <h3>Membres archivés</h3>
+    <table id="archivedTable">
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Date de suppression</th>
+        <th>Action</th>
+      </tr>
+    </table>
+  </div>
+  <br>
+  <button onclick="navigate('main')">Retour</button>
+</div>
+
+<!-- POPOTE -->
+<div id="popote" class="card hidden">
+  <h2>Popote 2026</h2>
+  <div id="monthButtons"></div>
+  <div id="monthTable"></div>
+  <br>
+  <h3>Résumé cumulatif</h3>
+  <div id="popoteSummary"></div>
+  <br>
+  <button onclick="navigate('main')">Retour</button>
+</div>
+
+<script>
+let currentUser = null;
+
+// ---- UTILITAIRES ----
+function hideAll(){
+  ["register","login","main","popote","members"].forEach(id => document.getElementById(id).classList.add("hidden"));
+}
+
+function navigate(page){
+  hideAll();
+  document.getElementById(page).classList.remove("hidden");
+  if(page === "main") showMain();
+  if(page === "popote") showPopote();
+}
+
+// ---- UTILITAIRES USERS ----
+function getUsers(){ return JSON.parse(localStorage.getItem("users")) || {}; }
+function saveUsers(users){ localStorage.setItem("users", JSON.stringify(users)); }
+
+// ---- INSCRIPTION ----
+function register(){
+  const nom = document.getElementById("nom").value.trim();
+  const prenom = document.getElementById("prenom").value.trim();
+  let pseudo = document.getElementById("pseudo").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if(!nom || !prenom || !pseudo || !password){
+    document.getElementById("registerMsg").innerText = "Tous les champs sont requis."; 
+    return;
+  }
+
+  const users = getUsers();
+  const newUser = {nom, prenom, character: pseudo, password, createdAt: new Date().toLocaleDateString()};
+
+  if(pseudo==="PM"){ 
+    users["PM"] = {...newUser, role: "Admin"};
+  } else {
+    users[pseudo] = {...newUser, role: "Membre"};
+  }
+
+  saveUsers(users);
+  document.getElementById("registerMsg").innerText = "Compte créé ! Connectez-vous.";
+  navigate("login");
+}
+
+// ---- CONNEXION ----
+function login(){
+  const pseudo = document.getElementById("loginPseudo").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+  const users = getUsers();
+
+  if(!users[pseudo] || users[pseudo].password !== password){
+    document.getElementById("loginMsg").innerText = "Pseudo ou mot de passe incorrect."; 
+    return;
+  }
+
+  currentUser = pseudo;
+  navigate("main");
+}
+
+// ---- PAGE PRINCIPALE ----
+function showMain(){
+  const users = getUsers();
+  document.getElementById("welcome").innerText = "Bienvenue " + currentUser + " (" + users[currentUser].role + ")";
+}
+
+function logout(){
+  currentUser = null; 
+  navigate("login");
+}
+
+// ---- POPOTE ----
+function showPopote(){
+  const monthDiv = document.getElementById("monthButtons");
+  monthDiv.innerHTML = "";
+  for(let m=1; m<=12; m++){
+    let btn = document.createElement("button");
+    btn.innerText = monthName(m);
+    btn.onclick = (()=>showMonth(m));
+    monthDiv.appendChild(btn);
+  }
+}
+
+function monthName(m){ 
+  return ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"][m-1]; 
+}
+
+function showMonth(month){
+  const users = getUsers();
+  const tableDiv = document.getElementById("monthTable");
+  tableDiv.innerHTML = "";
+
+  let table = document.createElement("table");
+  let header = table.insertRow();
+  ["Nom","Prénom","Eau","Soda","Gourmandise","Totaux","Action"].forEach(h=>{
+    let th = document.createElement("th"); th.innerText = h; header.appendChild(th);
+  });
+
+  const prices = {Eau:0.5, Soda:0.7, Gourmandise:0.5};
+
+  let popoteData = JSON.parse(localStorage.getItem("popoteData")) || {};
+  if(!popoteData[month]) popoteData[month] = {};
+
+  for(let u in users){
+    let row = table.insertRow();
+    row.insertCell().innerText = users[u].nom;
+    row.insertCell().innerText = users[u].prenom;
+
+    ["Eau","Soda","Gourmandise"].forEach((p,j)=>{
+      let cell = row.insertCell();
+      let inp = document.createElement("input"); 
+      inp.type = "number"; inp.min=0;
+      inp.value = (popoteData[month][u] && popoteData[month][u][p]) || 0;
+
+      inp.oninput = ()=>{
+        if(!popoteData[month][u]) popoteData[month][u] = {};
+        popoteData[month][u][p] = parseFloat(inp.value) || 0;
+        localStorage.setItem("popoteData", JSON.stringify(popoteData));
+        updateTotals(table, prices);
+        updateSummary();
+      };
+
+      cell.appendChild(inp);
+    });
+
+    // Action : supprimer membre (admin) à partir du mois courant
+    let actionCell = row.insertCell();
+    if(users[currentUser].role === "Admin" && u !== "PM"){
+        let deleteBtn = document.createElement("button");
+        deleteBtn.innerText = "Supprimer";
+        deleteBtn.onclick = ()=>{
+            if(confirm(`Voulez-vous vraiment supprimer ${users[u].nom} ${users[u].prenom} à partir de ce mois ?`)){
+                for(let m = month; m <= 12; m++){
+                    if(popoteData[m] && popoteData[m][u]){
+                        delete popoteData[m][u]; // supprimer données du membre pour ce mois et suivants
+                    }
+                }
+                localStorage.setItem("popoteData", JSON.stringify(popoteData));
+                alert(`${users[u].nom} ${users[u].prenom} a été supprimé à partir de ${monthName(month)}.`);
+                showMonth(month);
+                updateSummary();
+            }
+        };
+        actionCell.appendChild(deleteBtn);
+    }
+  }
+
+  tableDiv.appendChild(table);
+  updateTotals(table, prices);
+  updateSummary();
+}
+
+function updateTotals(table, prices){
+  for(let i=1; i<table.rows.length; i++){ 
+    let row = table.rows[i];
+    let total = 0;
+    ["Eau","Soda","Gourmandise"].forEach((p,j)=>{
+      let val = parseFloat(row.cells[j+2].firstChild.value) || 0;
+      total += val * prices[p];
+    });
+    row.cells[5].innerText = total.toFixed(2) + " €";
+  }
+}
+
+// ---- Résumé cumulatif Popote ----
+function updateSummary() {
+    const popoteData = JSON.parse(localStorage.getItem("popoteData")) || {};
+    const users = getUsers();
+    let summaryDiv = document.getElementById("popoteSummary");
+    summaryDiv.innerHTML = "";
+
+    let table = document.createElement("table");
+    let header = table.insertRow();
+    ["Nom","Prénom","Eau","Soda","Gourmandise","Total €"].forEach(h => {
+        let th = document.createElement("th");
+        th.innerText = h;
+        header.appendChild(th);
+    });
+
+    for(let u in users){
+        if(users[u].archived) continue;
+
+        let totalEau = 0, totalSoda = 0, totalGourmandise = 0;
+
+        for(let month in popoteData){
+            if(popoteData[month][u]){
+                totalEau += popoteData[month][u].Eau || 0;
+                totalSoda += popoteData[month][u].Soda || 0;
+                totalGourmandise += popoteData[month][u].Gourmandise || 0;
+            }
+        }
+
+        let totalAmount = totalEau*0.5 + totalSoda*0.7 + totalGourmandise*0.5;
+        let row = table.insertRow();
+        row.insertCell().innerText = users[u].nom;
+        row.insertCell().innerText = users[u].prenom;
+        row.insertCell().innerText = totalEau;
+        row.insertCell().innerText = totalSoda;
+        row.insertCell().innerText = totalGourmandise;
+        row.insertCell().innerText = totalAmount.toFixed(2) + " €";
+    }
+
+    summaryDiv.appendChild(table);
+}
+
+// ---- EFFECTIF ----
+function showMembers(){
+  navigate('members');
+
+  const users = getUsers();
+  const table = document.getElementById("membersTable");
+  const info = document.getElementById("membersInfo");
+
+  table.querySelectorAll("tr:not(:first-child)").forEach(r => r.remove());
+
+  let activeCount = 0;
+  let archivedCount = 0;
+
+  for(let u in users){
+    if(users[u].archived) {
+      archivedCount++;
+      continue;
+    }
+
+    activeCount++;
+    let row = table.insertRow();
+    row.insertCell().innerText = users[u].nom;
+    row.insertCell().innerText = users[u].prenom;
+    row.insertCell().innerText = users[u].createdAt || new Date().toLocaleDateString();
+
+    let cell = row.insertCell();
+    if(users[currentUser].role === "Admin" && u !== "PM"){ 
+      let btn = document.createElement("button");
+      btn.innerText = "Archiver";
+      btn.onclick = ()=>archiveMember(u);
+      cell.appendChild(btn);
+    }
+  }
+
+  info.innerText = `Membres actifs: ${activeCount} | Membres archivés: ${archivedCount}`;
+  document.getElementById("showArchivedBtn").classList.toggle('hidden', users[currentUser].role !== "Admin");
+}
+
+function archiveMember(pseudo){
+  const users = getUsers();
+  let archiveDate = prompt("Entrez la date d'archivage (format JJ/MM/AAAA) :", new Date().toLocaleDateString());
+  if(!archiveDate) return; // annuler si vide
+
+  // sauvegarder la date dans l'utilisateur
+  users[pseudo].archived = true;
+  users[pseudo].deletedAt = archiveDate;
+  saveUsers(users);
+
+  // supprimer automatiquement des mois de Popote **après la date d'archivage**
+  let popoteData = JSON.parse(localStorage.getItem("popoteData")) || {};
+  const monthNumbers = { "Janvier":1,"Février":2,"Mars":3,"Avril":4,"Mai":5,"Juin":6,"Juillet":7,"Août":8,"Septembre":9,"Octobre":10,"Novembre":11,"Décembre":12 };
+
+  // extraire le mois et l'année de la date d'archivage
+  let [day, month, year] = archiveDate.split("/").map(Number);
+
+  // supprimer à partir du mois suivant l'archivage
+  for(let m=month+1; m<=12; m++){
+    if(popoteData[m] && popoteData[m][pseudo]){
+      delete popoteData[m][pseudo];
+    }
+  }
+
+  localStorage.setItem("popoteData", JSON.stringify(popoteData));
+  alert(`${users[pseudo].nom} ${users[pseudo].prenom} a été archivé à partir de ${archiveDate}.`);
+  showMembers();
+}
+
+
+function showArchived(){
+  const users = getUsers();
+  const table = document.getElementById("archivedTable");
+  table.querySelectorAll("tr:not(:first-child)").forEach(r => r.remove());
+
+  for(let u in users){
+    if(users[u].archived){
+      let row = table.insertRow();
+      row.insertCell().innerText = users[u].nom;
+      row.insertCell().innerText = users[u].prenom;
+      row.insertCell().innerText = users[u].deletedAt;
+
+      if(users[currentUser].role === "Admin"){
+        let cell = row.insertCell();
+        let removeBtn = document.createElement("button");
+        removeBtn.innerText = "Supprimer définitivement";
+        removeBtn.onclick = ()=>{
+            if(confirm(`Voulez-vous vraiment supprimer définitivement ${users[u].nom} ${users[u].prenom} ?`)){
+                delete users[u];
+                saveUsers(users);
+                showArchived();
+                alert("Membre supprimé définitivement.");
+            }
+        };
+        cell.appendChild(removeBtn);
+      }
+    }
+  }
+
+  document.getElementById("archivedMembers").classList.remove("hidden");
+}
+
+// ---- Placeholder Popote & Compagnie ----
+function popoteCompagnie(){ alert("Popote & Compagnie (non implémenté)"); }
+
+</script>
+
+</body>
+</html>
