@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Popote & Compagnie</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: white;
+    text-align: center;
+}
+h1, h2 {
+    color: orange;
+    font-family: "Comic Sans MS", cursive;
+}
+button {
+    background: orange;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+button:hover { transform: scale(1.05); }
+.modal {
+    display: none;
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background:white;
+    padding:20px;
+    border-radius:10px;
+}
+table {
+    border-collapse: collapse;
+    margin: 20px auto;
+    width: 85%;
+}
+th, td {
+    border: 1px solid black;
+    padding: 6px;
+}
+input {
+    width: 60px;
+}
+footer {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    font-size: 12px;
+}
+
+/* Page Popote */
+#monthsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 500px;
+    margin: 20px auto;
+}
+#membersList {
+    max-width: 500px;
+    margin: 20px auto;
+    border: 2px solid orange;
+    border-radius: 10px;
+    padding: 10px;
+}
+.memberItem {
+    padding: 4px;
+    border-bottom: 1px solid #ddd;
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+}
+.totalBox {
+    font-weight: bold;
+    margin: 15px;
+    font-size: 18px;
+}
+</style>
+</head>
+<body>
+
+<!-- ACCUEIL -->
+<div id="homePage">
+<h1>Popote & Compagnie</h1>
+<button onclick="goPopote()">Popote</button>
+<button onclick="openLogin()">Connexion</button>
+<button onclick="logout()">Déconnexion</button>
+<footer>La Popote 2.0 - BETA 0.1.1</footer>
+</div>
+
+<!-- PAGE POPOTE -->
+<div id="popotePage" style="display:none;">
+<h2>Popote</h2>
+<button onclick="openAdd()">+ Ajouter membre</button>
+<button onclick="goHome()">Retour</button>
+
+<h3>Membres</h3>
+<div id="membersList"></div>
+
+<h3>Mois</h3>
+<div id="monthsGrid"></div>
+</div>
+
+<!-- PAGE MOIS -->
+<div id="monthPage" style="display:none;">
+<h2 id="monthTitle"></h2>
+<button onclick="goPopote()">Retour Popote</button>
+
+<table>
+<thead>
+<tr>
+<th>Nom</th>
+<th>Prénom</th>
+<th>Eau</th>
+<th>Soda</th>
+<th>Gourmandise</th>
+<th>Café</th>
+<th>Total €</th>
+</tr>
+</thead>
+<tbody id="monthTable"></tbody>
+</table>
+
+<div class="totalBox">
+Total du mois : <span id="monthTotal">0.00</span> €
+</div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div class="modal" id="loginModal">
+<div class="modal-content">
+<h3>Connexion</h3>
+<input type="text" id="pseudo" placeholder="Pseudo"><br><br>
+<input type="password" id="password" placeholder="Mot de passe"><br><br>
+<button onclick="login()">Valider</button>
+<button onclick="closeLogin()">Retour</button>
+</div>
+</div>
+
+<!-- MODAL AJOUT -->
+<div class="modal" id="addModal">
+<div class="modal-content">
+<h3>Ajouter un membre</h3>
+<input type="text" id="nom" placeholder="Nom"><br><br>
+<input type="text" id="prenom" placeholder="Prénom"><br><br>
+<button onclick="addMember()">Valider</button>
+<button onclick="closeAdd()">Annuler</button>
+</div>
+</div>
+
+<script>
+let isAdmin = false;
+let members = [];
+let consumptions = {}; // { mois: [{nom,prenom,eau,soda,gour,cafe}, ...] }
+const prices = { eau:0.5, soda:0.7, gour:0.5 };
+const months = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+
+// ======= LOGIN =======
+function openLogin(){ document.getElementById("loginModal").style.display="flex"; }
+function closeLogin(){ document.getElementById("loginModal").style.display="none"; }
+
+function login(){
+    const pseudo = document.getElementById("pseudo").value;
+    const pass = document.getElementById("password").value;
+    if(pseudo==="PM" && pass==="123456"){
+        isAdmin = true;
+        alert("Connecté admin");
+        closeLogin();
+    } else {
+        alert("Non non non !");
+    }
+}
+
+function logout(){
+    isAdmin = false;
+    alert("Déconnecté");
+}
+
+// ======= NAVIGATION =======
+function goPopote(){
+    document.getElementById("homePage").style.display="none";
+    document.getElementById("monthPage").style.display="none";
+    document.getElementById("popotePage").style.display="block";
+    updateMembersList();
+}
+function goHome(){ document.getElementById("popotePage").style.display="none"; document.getElementById("homePage").style.display="block"; }
+
+// ======= AJOUT MEMBRE =======
+function openAdd(){
+    if(!isAdmin){ alert("Touche pas à ça ptit con !"); return; }
+    document.getElementById("addModal").style.display="flex";
+}
+function closeAdd(){ document.getElementById("addModal").style.display="none"; }
+
+function addMember(){
+    const nom = document.getElementById("nom").value.trim();
+    const prenom = document.getElementById("prenom").value.trim();
+    if(!nom||!prenom) return;
+
+    // Vérifie doublon
+    if(members.some(m=>m.nom===nom && m.prenom===prenom)){
+        alert("Membre déjà existant !");
+        return;
+    }
+
+    members.push({nom,prenom});
+    // Initialise les consommations pour chaque mois
+    months.forEach(m=>{
+        if(!consumptions[m]) consumptions[m]=[];
+        consumptions[m].push({nom,prenom,eau:0,soda:0,gour:0,cafe:0});
+    });
+
+    updateMembersList();
+    saveData();
+    closeAdd();
+}
+
+
+// ======= SUPPRESSION MEMBRE =======
+function calculateAnnualTotal(member){
+    let total = 0;
+    months.forEach(month=>{
+        if(consumptions[month]){
+            let c = consumptions[month].find(cm=>cm.nom===member.nom && cm.prenom===member.prenom);
+            if(c) total += calculateTotal(c);
+        }
+    });
+    return total.toFixed(2);
+}
+
+function updateMembersList(){
+    const list = document.getElementById("membersList");
+    list.innerHTML = "";
+
+    members.forEach((m,i)=>{
+        let div = document.createElement("div");
+        div.className="memberItem";
+
+        // Nom + total annuel
+        div.innerHTML = `
+    <span style="
+        display: inline-block;
+        font-family: 'Verdana', Geneva, sans-serif;
+        font-size: 18px;
+        color: #333;
+        padding: 10px 15px;
+        background-color: #ffe5b4;
+        border-radius: 12px;
+        margin: 5px 0;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        width: calc(100% - 40px);
+    ">
+        ${m.nom} ${m.prenom} — <strong>Total 2026 : ${calculateAnnualTotal(m)} €</strong>
+    </span>
+`;
+
+
+        // Bouton supprimer si admin
+        if(isAdmin){
+            let btn = document.createElement("button");
+            btn.textContent="Supprimer";
+            btn.onclick = ()=>deleteMember(i);
+            div.appendChild(btn);
+        }
+
+        list.appendChild(div);
+    });
+}
+function updateConsumption(month,index){
+    if(!isAdmin) return;
+    const row = document.getElementById("monthTable").rows[index];
+    const m = consumptions[month][index];
+    m.eau = parseFloat(row.cells[2].children[0].value) || 0;
+    m.soda = parseFloat(row.cells[3].children[0].value) || 0;
+    m.gour = parseFloat(row.cells[4].children[0].value) || 0;
+    m.cafe = parseFloat(row.cells[5].children[0].value) || 0;
+    row.cells[6].textContent = calculateTotal(m).toFixed(2);
+    updateMonthTotal(month);
+    updateMembersList(); // <- mise à jour annuelle visible sur Popote
+    saveData();
+}
+function deleteMember(index){
+    if(confirm("Veux tu vraiment faire ton Thanos ?")){
+        let member = members[index];
+        members.splice(index,1);
+        // Supprimer des consommations
+        months.forEach(m=>{
+            if(consumptions[m]){
+                consumptions[m] = consumptions[m].filter(c=>!(c.nom===member.nom && c.prenom===member.prenom));
+            }
+        });
+        updateMembersList();
+        saveData();
+    }
+}
+
+// ======= MOIS =======
+function loadMonths(){
+    const div = document.getElementById("monthsGrid");
+    months.forEach(m=>{
+        let btn = document.createElement("button");
+        btn.textContent = m;
+        btn.onclick = ()=>openMonth(m);
+        div.appendChild(btn);
+    });
+}
+loadMonths();
+
+function openMonth(month){
+    document.getElementById("popotePage").style.display="none";
+    document.getElementById("monthPage").style.display="block";
+    document.getElementById("monthTitle").textContent = month;
+
+    const tbody = document.getElementById("monthTable");
+    tbody.innerHTML="";
+    if(!consumptions[month]) consumptions[month]=[];
+
+    consumptions[month].forEach((m,i)=>{
+        let row = tbody.insertRow();
+        row.insertCell().textContent = m.nom;
+        row.insertCell().textContent = m.prenom;
+
+        // Eau
+        let eau = row.insertCell();
+        eau.innerHTML = `<input type="number" min="0" value="${m.eau}" ${!isAdmin?'disabled':''} oninput="updateConsumption('${month}',${i})">`;
+
+        // Soda
+        let soda = row.insertCell();
+        soda.innerHTML = `<input type="number" min="0" value="${m.soda}" ${!isAdmin?'disabled':''} oninput="updateConsumption('${month}',${i})">`;
+
+        // Gourmandise
+        let gour = row.insertCell();
+        gour.innerHTML = `<input type="number" min="0" value="${m.gour}" ${!isAdmin?'disabled':''} oninput="updateConsumption('${month}',${i})">`;
+
+        // Café (admin peut remplir, sinon désactivé)
+        let cafe = row.insertCell();
+        cafe.innerHTML = `<input type="number" min="0" value="${m.cafe}" ${!isAdmin?'disabled':''} oninput="updateConsumption('${month}',${i})">`;
+
+        // Total
+        let total = row.insertCell();
+        total.textContent = calculateTotal(m).toFixed(2);
+    });
+    updateMonthTotal(month);
+}
+
+// ======= CALCUL ET SAUVEGARDE =======
+function calculateTotal(m){
+    return m.eau*prices.eau + m.soda*prices.soda + m.gour*prices.gour + m.cafe*1;
+}
+
+function updateConsumption(month,index){
+    const row = document.getElementById("monthTable").rows[index];
+    const m = consumptions[month][index];
+    m.eau = parseFloat(row.cells[2].children[0].value) || 0;
+    m.soda = parseFloat(row.cells[3].children[0].value) || 0;
+    m.gour = parseFloat(row.cells[4].children[0].value) || 0;
+    m.cafe = parseFloat(row.cells[5].children[0].value) || 0;
+    row.cells[6].textContent = calculateTotal(m).toFixed(2);
+    updateMonthTotal(month);
+    saveData();
+}
+
+function updateMonthTotal(month){
+    let sum = consumptions[month].reduce((acc,m)=>acc+calculateTotal(m),0);
+    document.getElementById("monthTotal").textContent = sum.toFixed(2);
+}
+
+// ======= LOCAL STORAGE =======
+function saveData(){
+    localStorage.setItem("members",JSON.stringify(members));
+    localStorage.setItem("consumptions",JSON.stringify(consumptions));
+}
+
+
+
+function loadData(){
+    const m = localStorage.getItem("members");
+    const c = localStorage.getItem("consumptions");
+    if(m) members = JSON.parse(m);
+    if(c) consumptions = JSON.parse(c);
+}
+loadData();
+updateMembersList();
+</script>
+</body>
+</html>
