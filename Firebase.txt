@@ -1,6 +1,0 @@
-apiKey: AIzaSyAJFyX4n6s5ER6_LiS22JtJ01VBvR8YM0g,
-  authDomain: popotecompagnie-2e79f.firebaseapp.com,
-  projectId: popotecompagnie-2e79f,
-  storageBucket: popotecompagnie-2e79f.firebasestorage.app,
-  messagingSenderId: 643014117897,
-  appId: 1:643014117897:web:254fd7aad817ed902086d8
