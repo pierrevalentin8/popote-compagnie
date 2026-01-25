@@ -3,608 +3,548 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Popote & Compagnie</title>
+<title>Popote & Dragon</title>
 <style>
-body { margin:0; font-family: Arial,sans-serif; background:white; text-align:center; }
-h1,h2 { color: orange; font-family: "Comic Sans MS", cursive; }
-button {
-    background: orange; color:white; border:none; border-radius:12px; padding:10px 15px; margin:5px;
-    cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.2); transition:0.2s;
+body {
+  margin:0;
+  font-family:'Courier New',monospace;
+  background:#2b1b12;
+  color:#f5deb3;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
+  padding:10px;
 }
-button:hover { transform: scale(1.05); }
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-.modal-content { background:white; padding:20px; border-radius:10px; }
-#monthsGrid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; max-width:500px; margin:20px auto; }
-#membersList { max-width:600px; margin:20px auto; padding:10px; text-align:left; }
-.memberItem span {
-    display:inline-block; font-family:'Verdana', Geneva, sans-serif; font-size:18px; color:#333;
-    padding:12px 20px; border-radius:12px; margin:8px 0; width:calc(100% - 40px);
-    box-shadow:0 3px 6px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;
+h1{text-align:center;font-size:24px;}
+button{
+  padding:5px 10px;
+  margin:2px;
+  font-family:'Courier New',monospace;
+  font-size:14px;
+  background:linear-gradient(#b57b3d,#7a4a2e);
+  color:#fff2cc;
+  border:3px solid #e0b97d;
+  border-radius:4px;
+  cursor:pointer;
 }
-.memberItem span:hover { transform: translateY(-3px); box-shadow:0 6px 12px rgba(0,0,0,0.2); }
-table { border-collapse:collapse; margin:20px auto; width:85%; }
-th,td { border:1px solid black; padding:6px; }
-input { width:60px; }
-footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
-/* Boutons discrets en haut à gauche */
-.top-left {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  gap: 6px;
-  z-index: 1000;
+button:hover{background:linear-gradient(#c88a45,#8a5535);}
+
+/* Panels */
+#creator,#charSheet,#adminPanel,#storyPanel,#arenaPanel{
+  display:none;
+  position:fixed;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  background:#3b2415;
+  border:3px solid #c9a26b;
+  padding:10px;
+  border-radius:6px;
+  box-shadow:0 0 10px rgba(0,0,0,0.7);
+  max-width:90%;
+  max-height:90vh;
+  overflow:auto;
 }
 
-.mini-btn {
-  background: transparent;
-  color: orange;
-  border: 1px solid orange;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 12px;
-  box-shadow: none;
-}
-
-.mini-btn:hover {
-  background: orange;
-  color: white;
-}
-
-/* Gros bouton Popote centré mobile */
-.main-popote-btn {
-  margin-top: 120px;
-  padding: 20px 40px;
-  font-size: 26px;
-  border-radius: 25px;
-  background: linear-gradient(135deg, orange, #ff9f1c);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.main-popote-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-}
-
-/* Mobile first */
-@media (max-width: 600px) {
-  .main-popote-btn {
-    width: 80%;
-    font-size: 28px;
-    padding: 25px;
-  }
-}
-.intro-text {
-  max-width: 90%;
-  margin: 60px auto 30px auto;
-  text-align: center;
-}
-
-.intro-text h2 {
-  font-size: 22px;
-  margin-bottom: 10px;
-  color: orange;
-}
-
-.intro-text p {
-  font-size: 15px;
-  color: #555;
-  line-height: 1.4;
-}
-
-@media (max-width: 600px) {
-  .intro-text h2 {
-    font-size: 20px;
-  }
-  .intro-text p {
-    font-size: 14px;
-  }
-}
-.memberItem {
-  cursor: grab;
-}
-
-.memberItem:active {
-  cursor: grabbing;
-}
-
-#sortModal button {
+/* Barre XP */
+.xp-bar-container {
   width: 100%;
+  height: 15px;
+  background: #555;
+  border: 1px solid #c9a26b;
+  border-radius: 8px;
+  margin: 5px 0 10px 0;
+  overflow: hidden;
+}
+.xp-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #00f, #00aaff);
+  transition: width 0.5s ease;
 }
 
+/* Fiche joueur */
+.char-card {
+  background:#3b2415;
+  border:3px solid #c9a26b;
+  border-radius:10px;
+  padding:20px;
+  max-width:400px;
+  width:90%;
+  color:#fff2cc;
+  box-shadow:0 4px 15px rgba(0,0,0,0.7);
+}
+.char-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+.char-header h2 {margin:0;font-size:22px;color:#ffd700;}
+.char-class {font-size:16px;font-style:italic;background:#7a4a2e;padding:3px 8px;border-radius:6px;}
+.char-info p {margin:5px 0;line-height:1.3;}
+.stats-container {display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+.stat-line {display:flex;align-items:center;gap:10px;}
+.stat-btn {font-size:14px;padding:3px 8px;background:linear-gradient(#b57b3d,#7a4a2e);color:#fff2cc;border:2px solid #e0b97d;border-radius:5px;cursor:pointer;}
+.stat-btn:hover {background:linear-gradient(#c88a45,#8a5535);}
+.close-btn {margin-top:15px;padding:8px 15px;background:#b57b3d;color:#fff2cc;border:none;border-radius:6px;cursor:pointer;}
+.close-btn:hover {background:#c88a45;}
+
+/* Admin */
+.admin-char-line{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:4px 6px;
+  margin-bottom:4px;
+  background:#4a2d1a;
+  border-radius:4px;
+}
+.admin-char-info{font-size:14px;flex:1;}
+.admin-char-actions{display:flex;gap:4px;align-items:center;}
+input[type="number"]{width:60px;padding:2px 4px;border-radius:3px;border:1px solid #c9a26b;background:#2b1b12;color:#f5deb3;}
+textarea{width:95%;height:50px;background:#2b1b12;color:#f5deb3;border:1px solid #c9a26b;border-radius:4px;}
+
+/* Boss */
+.boss-container{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#4a2d1a;
+  padding:4px 6px;
+  border-radius:4px;
+  margin:4px 0;
+}
+.boss-info{flex:1;display:flex;align-items:center;gap:10px;}
+.boss-hp-bar{width:100px;height:12px;background:#555;border:1px solid #c9a26b;border-radius:3px;}
+.boss-hp-fill{height:100%;background:#0f0;border-radius:2px;width:100%;}
+#bossProgress{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.bossProgressItem{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:4px;color:#000;font-size:12px;font-weight:bold;}
+.bossVaincu{background:#0f0;}
+.bossDisponible{background:#ff0;}
+.bossBloque{background:#888;}
+
+/* Arène */
+#arenaLog{
+  background:#2b1b12;
+  border:1px solid #c9a26b;
+  border-radius:4px;
+  padding:10px;
+  max-height:200px;
+  overflow-y:auto;
+  margin:10px 0;
+  color:#fff2cc;
+  font-family:'Courier New',monospace;
+  font-size:14px;
+}
+#fightBtn{
+  padding:6px 12px;
+  margin:5px 0;
+  font-family:'Courier New',monospace;
+  font-size:14px;
+  background:linear-gradient(#b57b3d,#7a4a2e);
+  color:#fff2cc;
+  border:3px solid #e0b97d;
+  border-radius:4px;
+  cursor:pointer;
+}
+#fightBtn:hover{background:linear-gradient(#c88a45,#8a5535);}
+
+/* Responsive mobile */
+@media (max-width:600px){
+  body{padding:5px;font-size:14px;}
+  h1{font-size:20px;}
+  button{font-size:12px;padding:6px 8px;}
+  #creator,#charSheet,#adminPanel,#storyPanel,#arenaPanel{width:95%;max-height:90vh;padding:10px;}
+  .char-card{padding:15px;width:100%;}
+  .char-header{flex-direction:column;align-items:flex-start;gap:5px;}
+  .stats-container .stat-line{flex-direction:row;align-items:center;gap:5px;}
+  .boss-container{flex-direction:column;align-items:flex-start;gap:5px;}
+  .boss-info{flex-direction:column;align-items:flex-start;}
+  #bossProgress{gap:2px;flex-wrap:wrap;}
+  #bossProgress .bossProgressItem{width:25px;height:25px;font-size:10px;}
+  textarea{width:100%;height:40px;}
+  input[type="text"], select, input[type="number"]{width:100%;box-sizing:border-box;}
+}
 </style>
 </head>
 <body>
-  <!-- PAGE LOGIN / INSCRIPTION -->
-<div id="authPage">
-  <h1>Popote & Compagnie</h1>
 
-  <div class="intro-text">
-    <h2>Bienvenue !</h2>
-    <p>Connectez-vous ou créez un compte pour accéder à Popote & Compagnie.</p>
-  </div>
+<h1>🍗 Popote & Dragon 🐉</h1>
+<button id="createBtn">Créer son personnage</button>
+<button id="playerBtn" style="display:none;"></button>
+<button id="adminBtn">Maître du Jeu</button>
+<button id="storyBtn">Histoire</button>
+<button id="arenaBtn">Arène</button>
 
-  <div style="margin:20px;">
-    <button class="main-popote-btn" onclick="showLoginForm()">Connexion</button>
-    <button class="main-popote-btn" onclick="showSignupForm()">Créer un compte</button>
-  </div>
-
-  <!-- FORMULAIRE CONNEXION -->
-  <div id="loginForm" class="modal-content" style="display:none; max-width:400px; margin:auto;">
-    <h3>Connexion</h3>
-    <input type="email" id="loginEmail" placeholder="Email"><br><br>
-    <div style="position:relative;">
-      <input type="password" id="loginPassword" placeholder="Mot de passe" style="width:100%;">
-      <button type="button" onclick="togglePassword('loginPassword')" style="position:absolute; right:5px; top:5px;">👁️</button>
-    </div><br>
-    <button onclick="login()">Valider</button>
-    <button onclick="hideForms()">Annuler</button>
-  </div>
-
-  <!-- FORMULAIRE CREATION COMPTE -->
-  <div id="signupForm" class="modal-content" style="display:none; max-width:400px; margin:auto;">
-    <h3>Créer un compte</h3>
-    <input type="email" id="signupEmail" placeholder="Email"><br><br>
-    <div style="position:relative;">
-      <input type="password" id="signupPassword" placeholder="Mot de passe" style="width:100%;">
-      <button type="button" onclick="togglePassword('signupPassword')" style="position:absolute; right:5px; top:5px;">👁️</button>
-    </div><br>
-    <button onclick="signup()">Créer</button>
-    <button onclick="hideForms()">Annuler</button>
-  </div>
+<!-- CREATION -->
+<div id="creator">
+<h2>Créer ton personnage</h2>
+<input type="text" id="name" placeholder="Nom"><br><br>
+<select id="class">
+<option>Guerrier</option>
+<option>Mage</option>
+<option>Voleur</option>
+<option>Popotier</option>
+</select><br><br>
+<textarea id="desc" placeholder="Description"></textarea>
+<h3>Points initiaux (10)</h3>
+<p>Points restants : <span id="pointsLeft">10</span></p>
+<div class="stat-line">Force : <button onclick="changeStat('force',-1)">-</button> <span id="force">0</span> <button onclick="changeStat('force',1)">+</button></div>
+<div class="stat-line">PV : <button onclick="changeStat('pv',-1)">-</button> <span id="pv">0</span> <button onclick="changeStat('pv',1)">+</button></div>
+<div class="stat-line">Défense : <button onclick="changeStat('defense',-1)">-</button> <span id="defense">0</span> <button onclick="changeStat('defense',1)">+</button></div>
+<div class="stat-line">Agilité : <button onclick="changeStat('agilite',-1)">-</button> <span id="agilite">0</span> <button onclick="changeStat('agilite',1)">+</button></div>
+<button onclick="validateCharacter()">Valider</button>
 </div>
 
-
-<!-- ACCUEIL -->
-<div id="homePage">
-<h1>Popote & Compagnie</h1>
-<div class="top-left">
-  <button class="mini-btn" onclick="openLogin()">Connexion</button>
-  <button class="mini-btn" onclick="logout()">Déconnexion</button>
-</div>
-<div class="intro-text">
-  <h2>La Popote Montechoise se modernise.</h2>
-  <p>Popote & Compagnie est là pour sublimer ton expérience avec la popote.</p>
-</div>
-
-<button class="main-popote-btn" onclick="goPopote()">🍽️ Popote</button>
-
-<footer>La Popote 2.0 - BETA 2.2 - Créé avec l'aide de Chat GPT</footer>
-</div>
-
-
-
-<!-- PAGE POPOTE -->
-<div id="popotePage" style="display:none;">
-  <h2>Popote</h2>
-  <button onclick="openAdd()">+ Ajouter membre</button>
-  <button onclick="openSort()">🔀 Trier les membres</button>
-  <button onclick="goHome()">Retour</button>
-
-  <h3>Membres</h3>
-  <div id="membersList"></div>
-
-  <h3>Mois</h3>
-  <div id="monthsGrid"></div>
-</div>
-
-
-<!-- PAGE MOIS -->
-<div id="monthPage" style="display:none;">
-<h2 id="monthTitle"></h2>
-<button onclick="goPopote()">Retour Popote</button>
-
-<table>
-<thead>
-<tr>
-<th>Nom</th>
-<th>Prénom</th>
-<th>Eau</th>
-<th>Soda</th>
-<th>Gourmandise</th>
-<th>Café</th>
-<th>Total €</th>
-</tr>
-</thead>
-<tbody id="monthTable"></tbody>
-</table>
-<div class="totalBox">
-Total du mois : <span id="monthTotal">0.00</span> €
-</div>
-</div>
-
-<!-- MODAL LOGIN -->
-<div class="modal" id="loginModal">
-<div class="modal-content">
-<h3>Connexion</h3>
-<input type="text" id="pseudo" placeholder="Email"><br><br>
-<input type="password" id="password" placeholder="Mot de passe"><br><br>
-<button onclick="login()">Valider</button>
-<button onclick="closeLogin()">Retour</button>
-</div>
-</div>
-
-<!-- MODAL AJOUT -->
-<div class="modal" id="addModal">
-<div class="modal-content">
-<h3>Ajouter un membre</h3>
-<input type="text" id="nom" placeholder="Nom"><br><br>
-<input type="text" id="prenom" placeholder="Prénom"><br><br>
-<button onclick="addMember()">Valider</button>
-<button onclick="closeAdd()">Annuler</button>
-</div>
-</div>
-<!-- MODAL TRI MEMBRES -->
-<div class="modal" id="sortModal">
-  <div class="modal-content">
-    <h3>Trier les membres</h3>
-    <button onclick="sortMembers('alpha')">🔤 Ordre alphabétique</button><br><br>
-    <button onclick="sortMembers('asc')">📈 Total croissant</button><br><br>
-    <button onclick="sortMembers('desc')">📉 Total décroissant</button><br><br>
-    <button onclick="closeSort()">Annuler</button>
+<!-- FICHE JOUEUR -->
+<div id="charSheet">
+  <div class="char-card">
+    <div class="char-header">
+      <h2 id="sheetName"></h2>
+      <span class="char-class" id="sheetClass"></span>
+    </div>
+    <div class="char-info">
+      <p><strong>Niveau :</strong> <span id="sheetLevel"></span></p>
+      <p><strong>XP :</strong> <span id="sheetXP"></span></p>
+      <div class="xp-bar-container">
+        <div class="xp-bar" id="sheetXPBar"></div>
+      </div>
+      <p><strong>Description :</strong></p>
+      <p id="sheetDesc"></p>
+    </div>
+    <h3>Stats</h3>
+    <div class="stats-container">
+      <div class="stat-line">Force : <span id="sheetForce"></span>
+        <button class="stat-btn" onclick="changeSheetStat('force',1)">+</button>
+        <button class="stat-btn" onclick="changeSheetStat('force',-1)">-</button>
+      </div>
+      <div class="stat-line">PV : <span id="sheetPV"></span>
+        <button class="stat-btn" onclick="changeSheetStat('pv',1)">+</button>
+        <button class="stat-btn" onclick="changeSheetStat('pv',-1)">-</button>
+      </div>
+      <div class="stat-line">Défense : <span id="sheetDefense"></span>
+        <button class="stat-btn" onclick="changeSheetStat('defense',1)">+</button>
+        <button class="stat-btn" onclick="changeSheetStat('defense',-1)">-</button>
+      </div>
+      <div class="stat-line">Agilité : <span id="sheetAgilite"></span>
+        <button class="stat-btn" onclick="changeSheetStat('agilite',1)">+</button>
+        <button class="stat-btn" onclick="changeSheetStat('agilite',-1)">-</button>
+      </div>
+    </div>
+    <p>Points disponibles : <span id="freePoints"></span></p>
+    <button onclick="closeSheet()" class="close-btn">Fermer</button>
   </div>
 </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!-- ADMIN -->
+<div id="adminPanel">
+<h3>Maître du Jeu</h3>
+<div id="adminCharList"></div>
+<button onclick="closeAdmin()">Fermer</button>
+</div>
+
+<!-- STORY / BOSS -->
+<div id="storyPanel">
+<h3>Progression Histoire</h3>
+<div id="bossProgress"></div>
+<div id="bossList"></div>
+<button onclick="closeStory()">Fermer</button>
+</div>
+
+<!-- ARENE -->
+<div id="arenaPanel">
+  <h3>Arène</h3>
+  <p id="arenaStatus">Choisis ton adversaire et combat !</p>
+
+  <div style="display:flex;justify-content:space-between;margin:10px 0;">
+    <div>
+      <strong id="arenaPlayerName"></strong>
+      <div class="boss-hp-bar" style="width:120px;">
+        <div id="arenaPlayerHP" class="boss-hp-fill" style="width:100%;"></div>
+      </div>
+    </div>
+    <div>
+      <strong id="arenaOpponentName"></strong>
+      <div class="boss-hp-bar" style="width:120px;">
+        <div id="arenaOpponentHP" class="boss-hp-fill" style="width:100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <button id="fightBtn">Combattre</button>
+  <pre id="arenaLog"></pre>
+  <button onclick="closeArena()" class="close-btn">Fermer</button>
+</div>
 
 <script>
-const firebaseConfig = {
- apiKey: "AIzaSyAJFyX4n6s5ER6_LiS22JtJ01VBvR8YM0g",
-  authDomain: "popotecompagnie-2e79f.firebaseapp.com",
-  projectId: "popotecompagnie-2e79f",
-  storageBucket: "popotecompagnie-2e79f.firebasestorage.app",
-  messagingSenderId: "643014117897",
-  appId: "1:643014117897:web:254fd7aad817ed902086d8"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-</script>
+// --- Variables --- 
+let stats={force:0,pv:0,defense:0,agilite:0};
+let totalPoints=10;
 
-<script>
-let members = [];
-let consumptions = {};
-const prices = {eau:0.5, soda:0.7, gour:0.5};
-const months = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
-let isAdmin = false;
-
-// === AUTHENTIFICATION VIA FIREBASE ===
-function openLogin() { document.getElementById("loginModal").style.display = "flex"; }
-function closeLogin() { document.getElementById("loginModal").style.display = "none"; }
-
-function login() {
-    const email = document.getElementById("pseudo").value.trim();
-    const password = document.getElementById("password").value;
-
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            isAdmin = true;
-            closeLogin();
-            updateMembersList();
-        })
-        .catch(err => {
-            console.log("Erreur login:", err.code, err.message);
-            // Ne rien faire côté interface si échec
-        });
+// --- Création personnage ---
+document.getElementById("createBtn").onclick = () => { document.getElementById("creator").style.display = "block"; };
+function changeStat(stat,val){
+  if(val===1 && totalPoints<=0) return;
+  if(val===-1 && stats[stat]<=0) return;
+  stats[stat]+=val;
+  totalPoints-=val;
+  document.getElementById(stat).textContent=stats[stat];
+  document.getElementById("pointsLeft").textContent=totalPoints;
+}
+function validateCharacter(){
+  if(totalPoints!==0){alert("Utilise tous les points !");return;}
+  const newChar={name:document.getElementById("name").value||"Héros",cls:document.getElementById("class").value,desc:document.getElementById("desc").value||"",stats:{...stats},level:1,xp:0,freePoints:0,lastAttack:{}};
+  let characters=JSON.parse(localStorage.getItem("characters")||"[]");
+  characters.push(newChar);
+  localStorage.setItem("characters",JSON.stringify(characters));
+  document.getElementById("createBtn").style.display="none";
+  document.getElementById("playerBtn").textContent=newChar.name;
+  document.getElementById("playerBtn").style.display="inline-block";
+  document.getElementById("creator").style.display="none";
 }
 
-function logout() {
-    auth.signOut().then(() => {
-        isAdmin = false;
-        updateMembersList();
-    });
-}
-// === GESTION FORMULAIRES LOGIN / SIGNUP ===
-function showLoginForm() {
-  document.getElementById("loginForm").style.display = "block";
-  document.getElementById("signupForm").style.display = "none";
-}
-
-function showSignupForm() {
-  document.getElementById("signupForm").style.display = "block";
-  document.getElementById("loginForm").style.display = "none";
-}
-
-function hideForms() {
-  document.getElementById("loginForm").style.display = "none";
-  document.getElementById("signupForm").style.display = "none";
-}
-
-// === BASCULER MOT DE PASSE ===
-function togglePassword(id){
-  const input = document.getElementById(id);
-  if(input) input.type = input.type === "password" ? "text" : "password";
-}
-
-// === AUTHENTIFICATION FIREBASE ===
-function signup(){
-  const email = document.getElementById("signupEmail").value.trim();
-  const password = document.getElementById("signupPassword").value;
-
-  if(!email || !password){
-    alert("Veuillez remplir tous les champs.");
-    return;
+// --- XP & Niveau ---
+function xpForNextLevel(level){ return level*10; }
+function checkLevelUp(character){
+  while(character.xp >= xpForNextLevel(character.level)){
+    character.xp -= xpForNextLevel(character.level);
+    character.level++;
+    character.freePoints+=2;
   }
-
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(() => {
-      alert("Compte créé ! Vous pouvez maintenant vous connecter.");
-      hideForms();
-      showLoginForm();
-    })
-    .catch(err => {
-      console.error("Erreur création compte:", err);
-      alert("Erreur création compte : " + err.message);
-    });
+}
+function getTotalXP(character){
+  let total = character.xp;
+  for(let lvl=1;lvl<character.level;lvl++){total+=xpForNextLevel(lvl);}
+  return total;
 }
 
-function login(){
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
-
-  if(!email || !password){
-    alert("Veuillez remplir tous les champs.");
-    return;
-  }
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      document.getElementById("authPage").style.display = "none";
-      document.getElementById("homePage").style.display = "block";
-      if(typeof updateMembersList === "function") updateMembersList();
-    })
-    .catch(err => {
-      console.error("Erreur connexion:", err);
-      alert("Erreur connexion : " + err.message);
-    });
+// --- Fiche joueur ---
+document.getElementById("playerBtn").onclick=()=>{ const characters=JSON.parse(localStorage.getItem("characters")||"[]"); if(!characters.length) return; const c=characters[0]; refreshSheet(c); document.getElementById("charSheet").style.display="block"; }
+function refreshSheet(c){
+  document.getElementById("sheetName").textContent=c.name;
+  document.getElementById("sheetClass").textContent=c.cls;
+  document.getElementById("sheetLevel").textContent=c.level;
+  document.getElementById("sheetXP").textContent=c.xp+" XP";
+  document.getElementById("sheetDesc").textContent=c.desc;
+  document.getElementById("sheetForce").textContent=c.stats.force;
+  document.getElementById("sheetPV").textContent=c.stats.pv;
+  document.getElementById("sheetDefense").textContent=c.stats.defense;
+  document.getElementById("sheetAgilite").textContent=c.stats.agilite;
+  document.getElementById("freePoints").textContent=c.freePoints;
+  let xpForNext=xpForNextLevel(c.level);
+  document.getElementById("sheetXPBar").style.width=Math.min(100,(c.xp/xpForNext)*100)+"%";
 }
-
-// === Vérifier l'état de connexion au chargement ===
-auth.onAuthStateChanged(user => {
-  const authPage = document.getElementById("authPage");
-  const homePage = document.getElementById("homePage");
-  if(user){
-    if(authPage) authPage.style.display = "none";
-    if(homePage) homePage.style.display = "block";
-    isAdmin = true;
-    if(typeof updateMembersList === "function") updateMembersList();
-  } else {
-    if(authPage) authPage.style.display = "block";
-    if(homePage) homePage.style.display = "none";
-    isAdmin = false;
-  }
-});
-
-// Vérifie l'état de connexion au démarrage
-auth.onAuthStateChanged(user => {
-    if (user) {
-        isAdmin = true;
-        updateMembersList();
-    } else {
-        isAdmin = false;
-        updateMembersList();
-    }
-});
-
-// === NAVIGATION ===
-function goPopote(){ document.getElementById("homePage").style.display="none"; document.getElementById("monthPage").style.display="none"; document.getElementById("popotePage").style.display="block"; updateMembersList(); }
-function goHome(){ document.getElementById("popotePage").style.display="none"; document.getElementById("homePage").style.display="block"; }
-
-// === AJOUT MEMBRE ===
-function openAdd(){ if(!isAdmin) return; document.getElementById("addModal").style.display="flex"; }
-function closeAdd(){ document.getElementById("addModal").style.display="none"; }
-function addMember(){
-    if(!isAdmin) return;
-    const nom = document.getElementById("nom").value.trim();
-    const prenom = document.getElementById("prenom").value.trim();
-    if(!nom || !prenom) return;
-    if(members.some(m=>m.nom===nom && m.prenom===prenom)) return;
-    members.push({nom,prenom});
-    months.forEach(m=>{ if(!consumptions[m]) consumptions[m]=[]; consumptions[m].push({nom,prenom,eau:0,soda:0,gour:0,cafe:0}); });
-    saveData();
-    closeAdd();
+function changeSheetStat(stat,val){
+  let characters=JSON.parse(localStorage.getItem("characters")||"[]");
+  const c=characters[0];
+  if(val===1 && c.freePoints<=0) return;
+  if(val===-1 && c.stats[stat]<=0) return;
+  c.stats[stat]+=val;
+  c.freePoints-=val;
+  characters[0]=c;
+  localStorage.setItem("characters",JSON.stringify(characters));
+  refreshSheet(c);
 }
+function closeSheet(){document.getElementById("charSheet").style.display="none";}
 
-// === CALCUL TOTAL ANNUEL ===
-function calculateAnnualTotal(member){
-    let total=0;
-    months.forEach(month=>{
-        if(consumptions[month]){
-            let c=consumptions[month].find(cm=>cm.nom===member.nom && cm.prenom===member.prenom);
-            if(c) total += c.eau*prices.eau + c.soda*prices.soda + c.gour*prices.gour + c.cafe;
-        }
-    });
-    return total.toFixed(2);
+// --- Admin ---
+document.getElementById("adminBtn").onclick=()=>{
+  const pwd=prompt("Mot de passe MJ :");
+  if(pwd!=="master123"){alert("Accès refusé");return;}
+  renderAdminList();
+  document.getElementById("adminPanel").style.display="block";
 }
-
-
-// === LISTE MEMBRES AVEC DRAG & DROP ===
-let draggedIndex = null;
-// === TRI DES MEMBRES ===
-function openSort(){
-  if(!isAdmin){
-    alert("Seul l'admin peut trier !");
-    return;
-  }
-  document.getElementById("sortModal").style.display = "flex";
-}
-
-function closeSort(){
-  document.getElementById("sortModal").style.display = "none";
-}
-
-function sortMembers(type){
-  if(!isAdmin) return;
-
-  let indices = members.map((m, i) => ({m, i}));
-
-  if(type === "alpha"){
-    indices.sort((a,b)=> (a.m.nom+a.m.prenom).localeCompare(b.m.nom+b.m.prenom));
-  }
-  else if(type === "asc"){
-    indices.sort((a,b)=> calculateAnnualTotal(a.m) - calculateAnnualTotal(b.m));
-  }
-  else if(type === "desc"){
-    indices.sort((a,b)=> calculateAnnualTotal(b.m) - calculateAnnualTotal(a.m));
-  }
-
-  // Réordonner members
-  members = indices.map(obj => obj.m);
-
-  // Réordonner consommations pour chaque mois
-  months.forEach(month=>{
-    if(consumptions[month]){
-      consumptions[month] = indices.map(obj => consumptions[month][obj.i]);
-    }
+function renderAdminList(){
+  const container=document.getElementById("adminCharList");
+  container.innerHTML="";
+  const characters=JSON.parse(localStorage.getItem("characters")||"[]");
+  characters.forEach((c,index)=>{
+    const line=document.createElement("div");
+    line.className="admin-char-line";
+    const info=document.createElement("div");
+    info.className="admin-char-info";
+    info.textContent=`${c.name} - Niveau: ${c.level} - XP totale: ${getTotalXP(c)}`;
+    const actions=document.createElement("div");
+    actions.className="admin-char-actions";
+    const input=document.createElement("input"); input.type="number"; input.placeholder="XP"; input.min=0;
+    const btn=document.createElement("button"); btn.textContent="Ajouter XP";
+    btn.onclick=()=>{
+      let val=parseInt(input.value);
+      if(isNaN(val)||val<=0) return;
+      c.xp+=val;
+      checkLevelUp(c);
+      characters[index]=c;
+      localStorage.setItem("characters",JSON.stringify(characters));
+      renderAdminList();
+      alert("XP ajoutée !");
+    };
+    actions.appendChild(input); actions.appendChild(btn);
+    line.appendChild(info); line.appendChild(actions);
+    container.appendChild(line);
   });
+}
+function closeAdmin(){document.getElementById("adminPanel").style.display="none";}
 
-  saveData();
-  updateMembersList();
-  closeSort();
+// --- Boss / Histoire ---
+let bosses=[{name:"Graduku", hpMax:100, hp:100, defeated:false, xpReward:20},{name:"Drakzor", hpMax:150, hp:150, defeated:false, xpReward:30},{name:"Tornak", hpMax:200, hp:200, defeated:false, xpReward:40},{name:"Morgath", hpMax:250, hp:250, defeated:false, xpReward:50},{name:"Zeroth", hpMax:300, hp:300, defeated:false, xpReward:60},{name:"Vulgrim", hpMax:350, hp:350, defeated:false, xpReward:70},{name:"Fangor", hpMax:400, hp:400, defeated:false, xpReward:80},{name:"Cindral", hpMax:450, hp:450, defeated:false, xpReward:90},{name:"Oryn", hpMax:500, hp:500, defeated:false, xpReward:100},{name:"Eldrax", hpMax:600, hp:600, defeated:false, xpReward:120}];
+
+function saveBosses(){ localStorage.setItem("bosses",JSON.stringify(bosses)); }
+function loadBosses(){ let saved=JSON.parse(localStorage.getItem("bosses")||"null"); if(saved) bosses=saved; }
+
+document.getElementById("storyBtn").onclick=()=>{
+  loadBosses();
+  renderBossProgress();
+  renderBossList();
+  document.getElementById("storyPanel").style.display="block";
+};
+function closeStory(){ document.getElementById("storyPanel").style.display="none"; }
+
+function renderBossProgress(){
+  const container=document.getElementById("bossProgress");
+  container.innerHTML="";
+  bosses.forEach((boss,index)=>{
+    const div=document.createElement("div");
+    div.className="bossProgressItem";
+    if(boss.defeated) div.classList.add("bossVaincu");
+    else if(index===0 || bosses[index-1].defeated) div.classList.add("bossDisponible");
+    else div.classList.add("bossBloque");
+    div.textContent=boss.name.charAt(0);
+    container.appendChild(div);
+  });
 }
 
-function updateMembersList(){
-    const list = document.getElementById("membersList");
-    list.innerHTML = "";
-
-    members.forEach((m, i) => {
-        let div = document.createElement("div");
-        div.className = "memberItem";
-        div.draggable = isAdmin;
-        div.dataset.index = i;
-
-        if(isAdmin){
-            div.addEventListener("dragstart", dragStart);
-            div.addEventListener("dragover", dragOver);
-            div.addEventListener("drop", dropMember);
-        }
-
-        let bgColor = (i % 2 === 0) ? "#ffe5b4" : "#ffd699";
-        div.innerHTML = `
-          <span style="background-color:${bgColor}">
-            ${m.nom} ${m.prenom} — Total 2026 : ${calculateAnnualTotal(m)} €
-          </span>
-        `;
-
-        if(isAdmin){
-            let btn = document.createElement("button");
-            btn.textContent = "Supprimer";
-            btn.style.marginLeft = "15px";
-            btn.onclick = () => deleteMember(i);
-            div.appendChild(btn);
-        }
-
-        list.appendChild(div);
-    });
-}
-
-function dragStart(e){
-    draggedIndex = Number(e.currentTarget.dataset.index);
-    e.currentTarget.style.opacity = "0.5";
-}
-
-function dragOver(e){
-    e.preventDefault();
-}
-
-function dropMember(e){
-    e.preventDefault();
-    const targetIndex = Number(e.currentTarget.dataset.index);
-    if(draggedIndex === null || draggedIndex === targetIndex) return;
-
-    // Déplacer membre
-    const movedMember = members.splice(draggedIndex, 1)[0];
-    members.splice(targetIndex, 0, movedMember);
-
-    // Déplacer aussi les consommations
-    months.forEach(month => {
-        if(consumptions[month]){
-            const movedCons = consumptions[month].splice(draggedIndex, 1)[0];
-            consumptions[month].splice(targetIndex, 0, movedCons);
-        }
-    });
-
-    draggedIndex = null;
-    saveData();
-    updateMembersList();
-}
-
-
-// === SUPPRESSION MEMBRE ===
-function deleteMember(index){
-    if(!isAdmin) return;
-    let member=members[index]; members.splice(index,1);
-    months.forEach(m=>{ if(consumptions[m]) consumptions[m]=consumptions[m].filter(c=>!(c.nom===member.nom && c.prenom===member.prenom)); });
-    saveData();
-}
-
-// === MOIS ===
-function loadMonths(){
-    const div=document.getElementById("monthsGrid");
-    months.forEach(m=>{ let btn=document.createElement("button"); btn.textContent=m; btn.onclick=()=>openMonth(m); div.appendChild(btn); });
-}
-loadMonths();
-
-function openMonth(month){
-    document.getElementById("popotePage").style.display="none";
-    document.getElementById("monthPage").style.display="block";
-    document.getElementById("monthTitle").textContent=month;
-    const tbody=document.getElementById("monthTable"); tbody.innerHTML="";
-    if(!consumptions[month]) consumptions[month]=[];
-    consumptions[month].forEach((m,i)=>{
-        let row=tbody.insertRow();
-        row.insertCell().textContent=m.nom;
-        row.insertCell().textContent=m.prenom;
-        ["eau","soda","gour","cafe"].forEach((key,j)=>{
-            let cell=row.insertCell();
-            cell.innerHTML=`<input type="number" min="0" value="${m[key]}" ${!isAdmin?'disabled':''} oninput="updateConsumption('${month}',${i})">`;
-        });
-        row.insertCell().textContent=(m.eau*prices.eau + m.soda*prices.soda + m.gour*prices.gour + m.cafe).toFixed(2);
-    });
-    updateMonthTotal(month);
-}
-
-// === CALCULS ET SAUVEGARDE ===
-function updateConsumption(month,index){
-    if(!isAdmin) return;
-    const row=document.getElementById("monthTable").rows[index];
-    const m=consumptions[month][index];
-    m.eau=parseFloat(row.cells[2].children[0].value)||0;
-    m.soda=parseFloat(row.cells[3].children[0].value)||0;
-    m.gour=parseFloat(row.cells[4].children[0].value)||0;
-    m.cafe=parseFloat(row.cells[5].children[0].value)||0;
-    row.cells[6].textContent=(m.eau*prices.eau + m.soda*prices.soda + m.gour*prices.gour + m.cafe).toFixed(2);
-    updateMonthTotal(month);
-    saveData();
-}
-
-function updateMonthTotal(month){
-    let sum=consumptions[month].reduce((acc,m)=>acc + (m.eau*prices.eau + m.soda*prices.soda + m.gour*prices.gour + m.cafe),0);
-    document.getElementById("monthTotal").textContent=sum.toFixed(2);
-}
-
-// === FIRESTORE SAUVEGARDE ET SYNCHRO ===
-function saveData(){
-    db.collection("popoteData").doc("main").set({members, consumptions})
-    .then(()=>console.log("Données sauvegardées"))
-    .catch(err=>console.error(err));
-}
-
-db.collection("popoteData").doc("main").onSnapshot(doc=>{
-    if(doc.exists){
-        const data=doc.data();
-        members=data.members || [];
-        consumptions=data.consumptions || {};
-        updateMembersList();
+function renderBossList(){
+  const container=document.getElementById("bossList");
+  container.innerHTML="";
+  const characters=JSON.parse(localStorage.getItem("characters")||"[]");
+  if(!characters.length) return;
+  const player=characters[0];
+  bosses.forEach((boss,index)=>{
+    const div=document.createElement("div");
+    div.className="boss-container";
+    const infoDiv=document.createElement("div");
+    infoDiv.className="boss-info";
+    let status="";
+    if(index>0 && !bosses[index-1].defeated){ status=" (Bloqué)"; div.style.opacity="0.5"; }
+    else if(boss.defeated){ status=" (Vaincu)"; }
+    infoDiv.textContent=`${boss.name} - PV: ${boss.hp}/${boss.hpMax}${status}`;
+    const hpBar=document.createElement("div"); hpBar.className="boss-hp-bar";
+    const hpFill=document.createElement("div"); hpFill.className="boss-hp-fill";
+    hpFill.style.width=(boss.hp/boss.hpMax*100)+"%";
+    hpFill.style.background=boss.hp/boss.hpMax<0.3?"#f00":"#0f0";
+    hpBar.appendChild(hpFill); infoDiv.appendChild(hpBar);
+    div.appendChild(infoDiv);
+    if(!boss.defeated && (index===0 || bosses[index-1].defeated)){
+      const attackBtn=document.createElement("button"); attackBtn.textContent="Attaquer";
+      attackBtn.onclick=()=>{ attackBoss(index,player); };
+      div.appendChild(attackBtn);
     }
-});
+    container.appendChild(div);
+  });
+}
 
+function attackBoss(index,player){
+  const boss=bosses[index]; const today=new Date().toDateString();
+  if(!player.lastAttack) player.lastAttack={};
+  if(player.lastAttack[boss.name]===today){ alert("Vous ne pouvez attaquer ce boss qu'une fois par jour !"); return; }
+  const dmg=Math.floor(player.stats.force + player.stats.agilite/2);
+  boss.hp=Math.max(0,boss.hp - dmg);
+  let xpGained=0;
+  if(boss.hp===0){ boss.defeated=true; xpGained=boss.xpReward; alert(`Boss ${boss.name} vaincu !`); }
+  player.lastAttack[boss.name]=today;
+  player.xp+=xpGained;
+  checkLevelUp(player);
+  const characters=JSON.parse(localStorage.getItem("characters")||"[]");
+  characters[0]=player; localStorage.setItem("characters",JSON.stringify(characters));
+  saveBosses(); renderBossProgress(); renderBossList();
+}
+
+// --- Arène ---
+document.getElementById("arenaBtn").onclick = () => {
+  const characters = JSON.parse(localStorage.getItem("characters")||"[]");
+  if(!characters.length) { alert("Crée un personnage d'abord !"); return; }
+  if(characters.length < 2) { alert("Il faut au moins deux personnages pour un duel !"); return; }
+  document.getElementById("arenaPanel").style.display = "block";
+  document.getElementById("arenaLog").textContent = "";
+  document.getElementById("arenaStatus").textContent = "Prêt pour le combat ?";
+};
+
+function closeArena(){ document.getElementById("arenaPanel").style.display="none"; }
+
+document.getElementById("fightBtn").onclick = async () => {
+  const characters = JSON.parse(localStorage.getItem("characters")||"[]");
+  if(characters.length < 2) { alert("Pas assez de personnages pour un duel."); return; }
+
+  const player = characters[0];
+  const today = new Date().toDateString();
+  if(!player.arena) player.arena = {date:today,count:0};
+  if(player.arena.date !== today) player.arena = {date:today,count:0};
+  if(player.arena.count >= 3) { alert("Tu as déjà fait 3 combats aujourd'hui !"); return; }
+
+  const others = characters.slice(1);
+  const opponent = others[Math.floor(Math.random()*others.length)];
+
+  document.getElementById("arenaPlayerName").textContent = player.name;
+  document.getElementById("arenaOpponentName").textContent = opponent.name;
+  document.getElementById("arenaPlayerHP").style.width = player.stats.pv + "%";
+  document.getElementById("arenaOpponentHP").style.width = opponent.stats.pv + "%";
+
+  const log = await duelAnimated(player, opponent);
+
+  player.arena.count += 1;
+  characters[0] = player;
+  localStorage.setItem("characters", JSON.stringify(characters));
+
+  document.getElementById("arenaLog").textContent = log;
+};
+
+async function duelAnimated(p1, p2){
+  let hp1 = p1.stats.pv, hp2 = p2.stats.pv;
+  let maxHP1 = hp1, maxHP2 = hp2;
+  let log = `Combat ${p1.name} vs ${p2.name}\n\n`;
+
+  const playerHPBar = document.getElementById("arenaPlayerHP");
+  const opponentHPBar = document.getElementById("arenaOpponentHP");
+
+  function updateHP(bar, hp, maxHp){
+    bar.style.width = Math.max(0,(hp/maxHp)*100) + "%";
+  }
+
+  while(hp1>0 && hp2>0){
+    await new Promise(r=>setTimeout(r,500));
+    let dmg1 = Math.max(0, p1.stats.force - p2.stats.defense);
+    if(Math.random()*100 < p2.stats.agilite*5) dmg1=0;
+    hp2 -= dmg1;
+    log += `${p1.name} inflige ${dmg1} à ${p2.name} (${hp2>0?hp2:0} PV restant)\n`;
+    updateHP(opponentHPBar,hp2,maxHP2);
+    await new Promise(r=>setTimeout(r,500));
+    if(hp2<=0) break;
+
+    let dmg2 = Math.max(0, p2.stats.force - p1.stats.defense);
+    if(Math.random()*100 < p1.stats.agilite*5) dmg2=0;
+    hp1 -= dmg2;
+    log += `${p2.name} inflige ${dmg2} à ${p1.name} (${hp1>0?hp1:0} PV restant)\n`;
+    updateHP(playerHPBar,hp1,maxHP1);
+    await new Promise(r=>setTimeout(r,500));
+  }
+
+  if(hp1>0) log += `\n${p1.name} gagne le duel !`;
+  else log += `\n${p2.name} gagne le duel !`;
+
+  return log;
+}
+
+// --- Initialisation page ---
+window.onload=()=>{
+  const characters=JSON.parse(localStorage.getItem("characters")||"[]");
+  if(characters.length){
+    document.getElementById("createBtn").style.display="none";
+    document.getElementById("playerBtn").textContent=characters[0].name;
+    document.getElementById("playerBtn").style.display="inline-block";
+  }
+  loadBosses();
+};
 </script>
-
-
 </body>
 </html>
