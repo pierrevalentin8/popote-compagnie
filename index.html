@@ -560,7 +560,16 @@ function closeAdmin(){
 }
 
 // --- Boss / Histoire ---
-let bosses=[{name:"Graduku", hpMax:100, hp:100, defeated:false, xpReward:20},{name:"Drakzor", hpMax:150, hp:150, defeated:false, xpReward:30},{name:"Tornak", hpMax:200, hp:200, defeated:false, xpReward:40},{name:"Morgath", hpMax:250, hp:250, defeated:false, xpReward:50},{name:"Zeroth", hpMax:300, hp:300, defeated:false, xpReward:60},{name:"Vulgrim", hpMax:350, hp:350, defeated:false, xpReward:70},{name:"Fangor", hpMax:400, hp:400, defeated:false, xpReward:80},{name:"Cindral", hpMax:450, hp:450, defeated:false, xpReward:90},{name:"Oryn", hpMax:500, hp:500, defeated:false, xpReward:100},{name:"Eldrax", hpMax:600, hp:600, defeated:false, xpReward:120}];
+let bosses=[{name:"Graduku", hpMax:100, hp:100, defeated:false, xpReward:20},
+{name:"Drakzor", hpMax:150, hp:150, defeated:false, xpReward:30},
+{name:"Tornak", hpMax:200, hp:200, defeated:false, xpReward:40},
+{name:"Morgath", hpMax:250, hp:250, defeated:false, xpReward:50},
+{name:"Zeroth", hpMax:300, hp:300, defeated:false, xpReward:60},
+{name:"Vulgrim", hpMax:350, hp:350, defeated:false, xpReward:70},
+{name:"Fangor", hpMax:400, hp:400, defeated:false, xpReward:80},
+{name:"Cindral", hpMax:450, hp:450, defeated:false, xpReward:90},
+{name:"Oryn", hpMax:500, hp:500, defeated:false, xpReward:100},
+{name:"Eldrax", hpMax:600, hp:600, defeated:false, xpReward:120}];
 
 function saveBosses(){ 
   saveDragonData();
@@ -599,16 +608,22 @@ function closeStory(){ document.getElementById("storyPanel").style.display="none
 function renderBossProgress(){
   const container=document.getElementById("bossProgress");
   container.innerHTML="";
+
   bosses.forEach((boss,index)=>{
+    if(!boss.name) return; // sécurité si boss mal formé
+
     const div=document.createElement("div");
     div.className="bossProgressItem";
+
     if(boss.defeated) div.classList.add("bossVaincu");
     else if(index===0 || bosses[index-1].defeated) div.classList.add("bossDisponible");
     else div.classList.add("bossBloque");
+
     div.textContent=boss.name.charAt(0);
     container.appendChild(div);
   });
 }
+
 
 function renderBossList(){
   const container=document.getElementById("bossList");
@@ -616,6 +631,7 @@ function renderBossList(){
   if(!myCharacter) return;
 
   bosses.forEach((boss,index)=>{
+    if(!boss.name || !boss.hpMax) return; // sécurité
     const div=document.createElement("div");
     div.className="boss-container";
     const infoDiv=document.createElement("div");
