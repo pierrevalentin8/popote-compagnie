@@ -587,25 +587,37 @@ function initBosses(){
 function saveBosses(){ 
   saveDragonData();
 }
-document.getElementById("storyBtn").onclick = async () => {
+async function loadStory() {
+  // Assure que le personnage est chargé
+  if(!myCharacter){
+    alert("Crée ton personnage avant de voir l'histoire !");
+    return;
+  }
+
+  // Charger bosses depuis Firebase
   try{
     const doc = await db.collection("popoteDragon").doc("main").get();
-    console.log("Document story:", doc.exists, doc.data());
-
-    if(doc.exists && doc.data().bosses){
+    if(doc.exists && doc.data().bosses && doc.data().bosses.length){
       bosses = doc.data().bosses;
+      localStorage.setItem("bosses", JSON.stringify(bosses));
     } else {
-      alert("Aucun boss trouvé dans Firebase !");
+      bosses = JSON.parse(JSON.stringify(defaultBosses));
+      localStorage.setItem("bosses", JSON.stringify(bosses));
+      await db.collection("popoteDragon").doc("main").set({bosses});
     }
 
     renderBossProgress();
     renderBossList();
-    document.getElementById("storyPanel").style.display="block";
-  }catch(e){
+    document.getElementById("storyPanel").style.display = "block";
+  } catch(e){
     console.error("Erreur chargement Histoire :", e);
     alert("Erreur de chargement de l'histoire : " + e.message);
   }
-};
+}
+
+// Bouton Histoire
+document.getElementById("storyBtn").onclick = loadStory;
+
 
 function initBossesIfEmpty(){
   db.collection("popoteDragon").doc("main").get().then(doc=>{
@@ -783,15 +795,10 @@ async function duelAnimated(p1, p2){
 // --- Initialisation page ---
 window.onload = () => {
   loadMyCharacter(() => {
-    loadDragonData(() => {
-      renderBossProgress();
-      renderBossList();
-      initBossesIfEmpty();
-      initBosses();
-
-    });
+    initBosses(); // remplit bosses depuis localStorage si présent
   });
 };
+
 
 
 
