@@ -560,16 +560,29 @@ function closeAdmin(){
 }
 
 // --- Boss / Histoire ---
-let bosses=[{name:"Graduku", hpMax:100, hp:100, defeated:false, xpReward:20},
-{name:"Drakzor", hpMax:150, hp:150, defeated:false, xpReward:30},
-{name:"Tornak", hpMax:200, hp:200, defeated:false, xpReward:40},
-{name:"Morgath", hpMax:250, hp:250, defeated:false, xpReward:50},
-{name:"Zeroth", hpMax:300, hp:300, defeated:false, xpReward:60},
-{name:"Vulgrim", hpMax:350, hp:350, defeated:false, xpReward:70},
-{name:"Fangor", hpMax:400, hp:400, defeated:false, xpReward:80},
-{name:"Cindral", hpMax:450, hp:450, defeated:false, xpReward:90},
-{name:"Oryn", hpMax:500, hp:500, defeated:false, xpReward:100},
-{name:"Eldrax", hpMax:600, hp:600, defeated:false, xpReward:120}];
+const defaultBosses = [
+  {name:"Graduku", hpMax:100, hp:100, defeated:false, xpReward:20},
+  {name:"Drakzor", hpMax:150, hp:150, defeated:false, xpReward:30},
+  {name:"Tornak", hpMax:200, hp:200, defeated:false, xpReward:40},
+  {name:"Morgath", hpMax:250, hp:250, defeated:false, xpReward:50},
+  {name:"Zeroth", hpMax:300, hp:300, defeated:false, xpReward:60},
+  {name:"Vulgrim", hpMax:350, hp:350, defeated:false, xpReward:70},
+  {name:"Fangor", hpMax:400, hp:400, defeated:false, xpReward:80},
+  {name:"Cindral", hpMax:450, hp:450, defeated:false, xpReward:90},
+  {name:"Oryn", hpMax:500, hp:500, defeated:false, xpReward:100},
+  {name:"Eldrax", hpMax:600, hp:600, defeated:false, xpReward:120}
+];
+
+let bosses = [];
+function initBosses(){
+  const saved = JSON.parse(localStorage.getItem("bosses") || "null");
+  if(saved && saved.length){
+    bosses = saved;
+  } else {
+    bosses = JSON.parse(JSON.stringify(defaultBosses));
+    localStorage.setItem("bosses", JSON.stringify(bosses));
+  }
+}
 
 function saveBosses(){ 
   saveDragonData();
@@ -774,6 +787,8 @@ window.onload = () => {
       renderBossProgress();
       renderBossList();
       initBossesIfEmpty();
+      initBosses();
+
     });
   });
 };
