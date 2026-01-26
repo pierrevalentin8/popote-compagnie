@@ -411,19 +411,14 @@ function login(){
 
 // === Vérifier l'état de connexion au chargement ===
 auth.onAuthStateChanged(user => {
-  const authPage = document.getElementById("authPage");
-  const homePage = document.getElementById("homePage");
   if(user){
-    if(authPage) authPage.style.display = "none";
-    if(homePage) homePage.style.display = "block";
-    isAdmin = true;
-    if(typeof updateMembersList === "function") updateMembersList();
+    isAdmin = (user.email === "pierre.valentin8@gmail.com");
+    updateMembersList();
   } else {
-    if(authPage) authPage.style.display = "block";
-    if(homePage) homePage.style.display = "none";
     isAdmin = false;
   }
 });
+
 
 // Vérifie l'état de connexion au démarrage
 auth.onAuthStateChanged(user => {
@@ -445,7 +440,7 @@ function goHome(){ document.getElementById("popotePage").style.display="none"; d
 function openAdd(){ if(!isAdmin) return; document.getElementById("addModal").style.display="flex"; }
 function closeAdd(){ document.getElementById("addModal").style.display="none"; }
 function addMember(){
-    if(!isAdmin) return;
+  if(!isAdmin) return alert("Seul l'admin peut ajouter un membre !");
     const nom = document.getElementById("nom").value.trim();
     const prenom = document.getElementById("prenom").value.trim();
     if(!nom || !prenom) return;
