@@ -214,6 +214,7 @@ footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
 
 
 <button class="main-popote-btn" onclick="goPopote()">🍽️ Popote</button>
+<button class="main-popote-btn" onclick="goDragon()">🍗 Popote & Dragon 🐉</button>
 
 
 <footer>La Popote 2.0 - BETA 2.4 - Créé avec l'aide de Chat GPT</footer>
@@ -435,6 +436,9 @@ auth.onAuthStateChanged(user => {
 // === NAVIGATION ===
 function goPopote(){ document.getElementById("homePage").style.display="none"; document.getElementById("monthPage").style.display="none"; document.getElementById("popotePage").style.display="block"; updateMembersList(); }
 function goHome(){ document.getElementById("popotePage").style.display="none"; document.getElementById("homePage").style.display="block"; }
+function goDragon(){
+  window.location.href = "https://pierrevalentin8.github.io/popote-dragon/";
+}
 
 // === AJOUT MEMBRE ===
 function openAdd(){ if(!isAdmin) return; document.getElementById("addModal").style.display="flex"; }
