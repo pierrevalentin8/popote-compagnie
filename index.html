@@ -13,7 +13,6 @@ button {
 }
 button:hover { transform: scale(1.05); }
 .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-.modal-content { background:white; padding:20px; border-radius:10px; }
 #monthsGrid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; max-width:500px; margin:20px auto; }
 #membersList { max-width:600px; margin:20px auto; padding:10px; text-align:left; }
 .memberItem span {
@@ -26,6 +25,148 @@ table { border-collapse:collapse; margin:20px auto; width:85%; }
 th,td { border:1px solid black; padding:6px; }
 input { width:60px; }
 footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
+/* MODALS */
+.modal-content {
+    background: #fff8f0; /* fond doux et chaleureux */
+    border-radius: 20px;
+    padding: 30px 25px;
+    max-width: 400px;
+    margin: auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    text-align: center;
+    animation: popIn 0.25s ease;
+}
+
+/* Animation apparition */
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* TITRES MODALS */
+.modal-content h3 {
+    font-family: 'Fredoka One', cursive;
+    color: #ff7f50;
+    margin-bottom: 20px;
+}
+
+/* INPUTS */
+.modal-content input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    border: 1px solid #ffb97f;
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+
+.modal-content input:focus {
+    border-color: #ff7f50;
+    box-shadow: 0 0 8px rgba(255,127,80,0.3);
+    outline: none;
+}
+
+/* BOUTONS DANS MODALS */
+.modal-content button {
+    width: 100%;
+    background: linear-gradient(135deg, #ff7f50, #ff9f1c);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+}
+
+.modal-content button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+/* BOUTON "👁️" pour mot de passe */
+.modal-content button.eye-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+/* Conteneur input + bouton */
+.password-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px; /* espace entre input et bouton */
+  margin-bottom: 15px;
+}
+
+/* Input mot de passe */
+.password-row input {
+  flex: 1; /* prend tout l'espace restant */
+  padding: 12px 15px;
+  border-radius: 15px;
+  border: 1px solid #ffb97f;
+  font-size: 16px;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Bouton 👁️ */
+.password-row button.eye-btn {
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff7f50, #ff9f1c);
+  color: white;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.password-row button.eye-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+/* Conteneur du mot de passe */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Input mot de passe */
+.password-container input {
+    width: 100%;
+    padding: 12px 40px 12px 15px; /* espace à droite pour le bouton */
+    border-radius: 15px;
+    border: 1px solid #ffb97f;
+    font-size: 16px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Bouton 👁️ */
+.password-container button.eye-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #ff7f50;
+}
+
+
 /* Boutons discrets en haut à gauche */
 .top-left {
   position: fixed;
@@ -143,6 +284,45 @@ footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
 .annonces-box li:last-child {
   border-bottom: none;
 }
+.password-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px; /* très petit écart entre input et bouton */
+    margin-bottom: 15px;
+}
+
+.password-row input {
+    flex: 1; /* prend tout l'espace restant */
+    padding: 12px 15px;
+    border-radius: 15px;
+    border: 1px solid #ffb97f;
+    font-size: 16px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Petit rond juste à côté */
+.password-row button.eye-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ff7f50;
+    color: white;
+    font-size: 18px;  /* taille emoji */
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.password-row button.eye-btn:hover {
+    transform: scale(1.2);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
 
 </style>
 </head>
@@ -153,7 +333,7 @@ footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
 
   <div class="intro-text">
     <h2>Bienvenue !</h2>
-    <p>Connectez-vous ou créez un compte pour accéder à Popote & Compagnie.</p>
+    <p>Connectez-vous ou créez un compte pour accéder à Popote & Cie.</p>
   </div>
 
   <div style="margin:20px;">
@@ -166,10 +346,12 @@ footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
   <div id="loginForm" class="modal-content" style="display:none; max-width:400px; margin:auto;">
     <h3>Connexion</h3>
     <input type="email" id="loginEmail" placeholder="Email"><br><br>
-    <div style="position:relative;">
-      <input type="password" id="loginPassword" placeholder="Mot de passe" style="width:100%;">
-      <button type="button" onclick="togglePassword('loginPassword')" style="position:absolute; right:5px; top:5px;">👁️</button>
-    </div><br>
+   <div class="password-row">
+  <input type="password" id="loginPassword" placeholder="Mot de passe">
+  <button type="button" class="eye-btn" onclick="togglePassword('loginPassword')">👁️</button>
+</div>
+
+    <br>
     <button onclick="login()">Valider</button>
     <button onclick="hideForms()">Annuler</button>
   </div>
@@ -178,10 +360,12 @@ footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
   <div id="signupForm" class="modal-content" style="display:none; max-width:400px; margin:auto;">
     <h3>Créer un compte</h3>
     <input type="email" id="signupEmail" placeholder="Email"><br><br>
-    <div style="position:relative;">
-      <input type="password" id="signupPassword" placeholder="Mot de passe" style="width:100%;">
-      <button type="button" onclick="togglePassword('signupPassword')" style="position:absolute; right:5px; top:5px;">👁️</button>
-    </div><br>
+    <div class="password-row">
+  <input type="password" id="loginPassword" placeholder="Mot de passe">
+  <button type="button" class="eye-btn" onclick="togglePassword('loginPassword')">👁️</button>
+</div>
+
+    <br>
     <button onclick="signup()">Créer</button>
     <button onclick="hideForms()">Annuler</button>
   </div>
@@ -206,9 +390,9 @@ footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
   <h2>📢 Annonces</h2>
   <ul id="annoncesList">
     <li><strong>🆕 </strong> : Lancement de Popote & Compagnie !</li>
-    <li>🔐 Demande code unité avant création de compte</li>
     <li>📅 Suivi mensuel des consommations</li>
-    <li>🚀 À venir : création rubrique SPORT / Création Popote &Dragon</li>
+    <li>⭐ Création 🍗 Popote & Dragon 🐉</li>
+    <li>🚀 À venir : création rubrique SPORT </li>
   </ul>
 </div>
 
@@ -217,7 +401,7 @@ footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
 <button class="main-popote-btn" onclick="goDragon()">🍗 Popote & Dragon 🐉</button>
 
 
-<footer>La Popote 2.0 - BETA 2.4 - Créé avec l'aide de Chat GPT</footer>
+<footer>La Popote 2.0 - MAJ 10 - Créé avec l'aide de Chat GPT</footer>
 </div>
 
 
@@ -424,13 +608,23 @@ auth.onAuthStateChanged(user => {
 // Vérifie l'état de connexion au démarrage
 auth.onAuthStateChanged(user => {
     if (user) {
+        // L'utilisateur est connecté
         isAdmin = (user.email === "pierre.valentin8@gmail.com");
+
+        // Affiche la page d'accueil et cache la page d'auth
+        document.getElementById("authPage").style.display = "none";
+        document.getElementById("homePage").style.display = "block";
+
+        // Mets à jour la liste des membres
         updateMembersList();
     } else {
+        // L'utilisateur n'est pas connecté
         isAdmin = false;
-        updateMembersList();
+        document.getElementById("authPage").style.display = "block";
+        document.getElementById("homePage").style.display = "none";
     }
 });
+
 
 
 // === NAVIGATION ===
