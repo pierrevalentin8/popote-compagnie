@@ -214,9 +214,6 @@ footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
 
 
 <button class="main-popote-btn" onclick="goPopote()">🍽️ Popote</button>
-<button class="main-popote-btn" onclick="window.location.href='https://pierrevalentin8.github.io/popote-dragon/'">
-  🍗 Popote & Dragon 🐉
-</button>
 
 
 <footer>La Popote 2.0 - BETA 2.4 - Créé avec l'aide de Chat GPT</footer>
@@ -431,13 +428,14 @@ auth.onAuthStateChanged(user => {
 // Vérifie l'état de connexion au démarrage
 auth.onAuthStateChanged(user => {
     if (user) {
-        isAdmin = true;
+        isAdmin = (user.email === "pierre.valentin8@gmail.com");
         updateMembersList();
     } else {
         isAdmin = false;
         updateMembersList();
     }
 });
+
 
 // === NAVIGATION ===
 function goPopote(){ document.getElementById("homePage").style.display="none"; document.getElementById("monthPage").style.display="none"; document.getElementById("popotePage").style.display="block"; updateMembersList(); }
@@ -638,19 +636,22 @@ function updateMonthTotal(month){
 
 // === FIRESTORE SAUVEGARDE ET SYNCHRO ===
 function saveData(){
+    if(!isAdmin) return;  // seuls les admins sauvegardent
     db.collection("popoteData").doc("main").set({members, consumptions})
     .then(()=>console.log("Données sauvegardées"))
     .catch(err=>console.error(err));
 }
 
+
 db.collection("popoteData").doc("main").onSnapshot(doc=>{
     if(doc.exists){
-        const data=doc.data();
-        members=data.members || [];
-        consumptions=data.consumptions || {};
+        const data = doc.data();
+        members = data.members || [];
+        consumptions = data.consumptions || {};
         updateMembersList();
     }
 });
+
 // === CODE UNITE AVANT INSCRIPTION ===
 function askUnitCode(){
   hideForms(); // cache login/signup si visibles
