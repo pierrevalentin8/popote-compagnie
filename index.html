@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Popote & Dragon</title>
+<style>
+body {
+  margin:0;
+  font-family:'Courier New',monospace;
+  background:#2b1b12;
+  color:#f5deb3;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
+  padding:10px;
+}
+h1{text-align:center;font-size:24px;}
+button{
+  padding:5px 10px;
+  margin:2px;
+  font-family:'Courier New',monospace;
+  font-size:14px;
+  background:linear-gradient(#b57b3d,#7a4a2e);
+  color:#fff2cc;
+  border:3px solid #e0b97d;
+  border-radius:4px;
+  cursor:pointer;
+}
+button:hover{background:linear-gradient(#c88a45,#8a5535);}
+
+/* Panels */
+#creator,#charSheet,#adminPanel,#storyPanel,#arenaPanel{
+  display:none;
+  position:fixed;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  background:#3b2415;
+  border:3px solid #c9a26b;
+  padding:10px;
+  border-radius:6px;
+  box-shadow:0 0 10px rgba(0,0,0,0.7);
+  max-width:90%;
+  max-height:90vh;
+  overflow:auto;
+}
+
+/* Barre XP */
+.xp-bar-container {
+  width: 100%;
+  height: 15px;
+  background: #555;
+  border: 1px solid #c9a26b;
+  border-radius: 8px;
+  margin: 5px 0 10px 0;
+  overflow: hidden;
+}
+.xp-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #00f, #00aaff);
+  transition: width 0.5s ease;
+}
+
+/* Fiche joueur */
+.char-card {
+  background:#3b2415;
+  border:3px solid #c9a26b;
+  border-radius:10px;
+  padding:20px;
+  max-width:400px;
+  width:90%;
+  color:#fff2cc;
+  box-shadow:0 4px 15px rgba(0,0,0,0.7);
+}
+.char-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+.char-header h2 {margin:0;font-size:22px;color:#ffd700;}
+.char-class {font-size:16px;font-style:italic;background:#7a4a2e;padding:3px 8px;border-radius:6px;}
+.char-info p {margin:5px 0;line-height:1.3;}
+.stats-container {display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+.stat-line {display:flex;align-items:center;gap:10px;}
+.stat-btn {font-size:14px;padding:3px 8px;background:linear-gradient(#b57b3d,#7a4a2e);color:#fff2cc;border:2px solid #e0b97d;border-radius:5px;cursor:pointer;}
+.stat-btn:hover {background:linear-gradient(#c88a45,#8a5535);}
+.close-btn {margin-top:15px;padding:8px 15px;background:#b57b3d;color:#fff2cc;border:none;border-radius:6px;cursor:pointer;}
+.close-btn:hover {background:#c88a45;}
+
+/* Admin */
+.admin-char-line{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:4px 6px;
+  margin-bottom:4px;
+  background:#4a2d1a;
+  border-radius:4px;
+}
+.admin-char-info{font-size:14px;flex:1;}
+.admin-char-actions{display:flex;gap:4px;align-items:center;}
+input[type="number"]{width:60px;padding:2px 4px;border-radius:3px;border:1px solid #c9a26b;background:#2b1b12;color:#f5deb3;}
+textarea{width:95%;height:50px;background:#2b1b12;color:#f5deb3;border:1px solid #c9a26b;border-radius:4px;}
+
+/* Boss */
+.boss-container{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#4a2d1a;
+  padding:4px 6px;
+  border-radius:4px;
+  margin:4px 0;
+}
+.boss-info{flex:1;display:flex;align-items:center;gap:10px;}
+.boss-hp-bar{width:100px;height:12px;background:#555;border:1px solid #c9a26b;border-radius:3px;}
+.boss-hp-fill{height:100%;background:#0f0;border-radius:2px;width:100%;}
+#bossProgress{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.bossProgressItem{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:4px;color:#000;font-size:12px;font-weight:bold;}
+.bossVaincu{background:#0f0;}
+.bossDisponible{background:#ff0;}
+.bossBloque{background:#888;}
+
+/* Arène */
+#arenaLog{
+  background:#2b1b12;
+  border:1px solid #c9a26b;
+  border-radius:4px;
+  padding:10px;
+  max-height:200px;
+  overflow-y:auto;
+  margin:10px 0;
+  color:#fff2cc;
+  font-family:'Courier New',monospace;
+  font-size:14px;
+}
+#fightBtn{
+  padding:6px 12px;
+  margin:5px 0;
+  font-family:'Courier New',monospace;
+  font-size:14px;
+  background:linear-gradient(#b57b3d,#7a4a2e);
+  color:#fff2cc;
+  border:3px solid #e0b97d;
+  border-radius:4px;
+  cursor:pointer;
+}
+#fightBtn:hover{background:linear-gradient(#c88a45,#8a5535);}
+
+/* Responsive mobile */
+@media (max-width:600px){
+  body{padding:5px;font-size:14px;}
+  h1{font-size:20px;}
+  button{font-size:12px;padding:6px 8px;}
+  #creator,#charSheet,#adminPanel,#storyPanel,#arenaPanel{width:95%;max-height:90vh;padding:10px;}
+  .char-card{padding:15px;width:100%;}
+  .char-header{flex-direction:column;align-items:flex-start;gap:5px;}
+  .stats-container .stat-line{flex-direction:row;align-items:center;gap:5px;}
+  .boss-container{flex-direction:column;align-items:flex-start;gap:5px;}
+  .boss-info{flex-direction:column;align-items:flex-start;}
+  #bossProgress{gap:2px;flex-wrap:wrap;}
+  #bossProgress .bossProgressItem{width:25px;height:25px;font-size:10px;}
+  textarea{width:100%;height:40px;}
+  input[type="text"], select, input[type="number"]{width:100%;box-sizing:border-box;}
+}
+</style>
+</head>
+<body>
+
+<h1>🍗 Popote & Dragon 🐉</h1>
+<button id="createBtn">Créer son personnage</button>
+<button id="playerBtn" style="display:none;"></button>
+<button id="adminBtn">Maître du Jeu</button>
+<button id="storyBtn">Histoire</button>
+<button id="arenaBtn">Arène</button>
+
+<!-- CREATION -->
+<div id="creator">
+<h2>Créer ton personnage</h2>
+<input type="text" id="name" placeholder="Nom"><br><br>
+<select id="class">
+<option>Guerrier</option>
+<option>Mage</option>
+<option>Voleur</option>
+<option>Popotier</option>
+</select><br><br>
+<textarea id="desc" placeholder="Description"></textarea>
+<h3>Points initiaux (10)</h3>
+<p>Points restants : <span id="pointsLeft">10</span></p>
+<div class="stat-line">Force : <button onclick="changeStat('force',-1)">-</button> <span id="force">0</span> <button onclick="changeStat('force',1)">+</button></div>
+<div class="stat-line">PV : <button onclick="changeStat('pv',-1)">-</button> <span id="pv">0</span> <button onclick="changeStat('pv',1)">+</button></div>
+<div class="stat-line">Défense : <button onclick="changeStat('defense',-1)">-</button> <span id="defense">0</span> <button onclick="changeStat('defense',1)">+</button></div>
+<div class="stat-line">Agilité : <button onclick="changeStat('agilite',-1)">-</button> <span id="agilite">0</span> <button onclick="changeStat('agilite',1)">+</button></div>
+<button onclick="validateCharacter()">Valider</button>
+</div>
+
+<!-- FICHE JOUEUR -->
+<div id="charSheet">
+  <div class="char-card">
+    <div class="char-header">
+      <h2 id="sheetName"></h2>
+      <span class="char-class" id="sheetClass"></span>
+    </div>
+    <div class="char-info">
+      <p><strong>Niveau :</strong> <span id="sheetLevel"></span></p>
+      <p><strong>XP :</strong> <span id="sheetXP"></span></p>
+      <div class="xp-bar-container">
+        <div class="xp-bar" id="sheetXPBar"></div>
+      </div>
+      <p><strong>Description :</strong></p>
+      <p id="sheetDesc"></p>
+    </div>
+    <h3>Stats</h3>
+    <div class="stats-container">
+      <div class="stat-line">Force : <span id="sheetForce"></span>
+        <button class="stat-btn" onclick="changeSheetStat('force',1)">+</button>
+        <button class="stat-btn" onclick="changeSheetStat('force',-1)">-</button>
+      </div>
+      <div class="stat-line">PV : <span id="sheetPV"></span>
+        <button class="stat-btn" onclick="changeSheetStat('pv',1)">+</button>
+        <button class="stat-btn" onclick="changeSheetStat('pv',-1)">-</button>
+      </div>
+      <div class="stat-line">Défense : <span id="sheetDefense"></span>
+        <button class="stat-btn" onclick="changeSheetStat('defense',1)">+</button>
+        <button class="stat-btn" onclick="changeSheetStat('defense',-1)">-</button>
+      </div>
+      <div class="stat-line">Agilité : <span id="sheetAgilite"></span>
+        <button class="stat-btn" onclick="changeSheetStat('agilite',1)">+</button>
+        <button class="stat-btn" onclick="changeSheetStat('agilite',-1)">-</button>
+      </div>
+    </div>
+    <p>Points disponibles : <span id="freePoints"></span></p>
+    <button onclick="closeSheet()" class="close-btn">Fermer</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminPanel">
+<h3>Maître du Jeu</h3>
+<div id="adminCharList"></div>
+<button onclick="closeAdmin()">Fermer</button>
+</div>
+
+<!-- STORY / BOSS -->
+<div id="storyPanel">
+<h3>Progression Histoire</h3>
+<div id="bossProgress"></div>
+<div id="bossList"></div>
+<button onclick="closeStory()">Fermer</button>
+</div>
+
+<!-- ARENE -->
+<div id="arenaPanel">
+  <h3>Arène</h3>
+  <p id="arenaStatus">Choisis ton adversaire et combat !</p>
+
+  <div style="display:flex;justify-content:space-between;margin:10px 0;">
+    <div>
+      <strong id="arenaPlayerName"></strong>
+      <div class="boss-hp-bar" style="width:120px;">
+        <div id="arenaPlayerHP" class="boss-hp-fill" style="width:100%;"></div>
+      </div>
+    </div>
+    <div>
+      <strong id="arenaOpponentName"></strong>
+      <div class="boss-hp-bar" style="width:120px;">
+        <div id="arenaOpponentHP" class="boss-hp-fill" style="width:100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <button id="fightBtn">Combattre</button>
+  <pre id="arenaLog"></pre>
+  <button onclick="closeArena()" class="close-btn">Fermer</button>
+</div>
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAJFyX4n6s5ER6_LiS22JtJ01VBvR8YM0g",
+  authDomain: "popotecompagnie-2e79f.firebaseapp.com",
+  projectId: "popotecompagnie-2e79f",
+  storageBucket: "popotecompagnie-2e79f.firebasestorage.app",
+  messagingSenderId: "643014117897",
+  appId: "1:643014117897:web:254fd7aad817ed902086d8"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+function loadMyCharacter(callback){
+  auth.onAuthStateChanged(user => {
+    if(!user){
+      console.log("Pas connecté");
+      myCharacter = null;
+      document.getElementById("createBtn").style.display = "inline-block";
+      document.getElementById("playerBtn").style.display = "none";
+      return;
+    }
+
+    db.collection("popoteDragonCharacters").doc(user.uid).get()
+      .then(doc => {
+        if(doc.exists){
+          myCharacter = doc.data();
+          document.getElementById("createBtn").style.display = "none";
+          document.getElementById("playerBtn").textContent = myCharacter.name;
+          document.getElementById("playerBtn").style.display = "inline-block";
+          console.log("Personnage chargé :", myCharacter);
+        } else {
+          myCharacter = null;
+          document.getElementById("createBtn").style.display = "inline-block";
+          document.getElementById("playerBtn").style.display = "none";
+          console.log("Aucun personnage trouvé");
+        }
+        if(callback) callback();
+      })
+      .catch(err => console.error("Erreur chargement personnage:", err));
+  });
+}
+
+</script>
+
+<script>
+// --- Variables --- 
+let myCharacter = null;
+let stats={force:0,pv:0,defense:0,agilite:0};
+let totalPoints=10;
+
+// --- Création personnage ---
+document.getElementById("createBtn").onclick = () => { document.getElementById("creator").style.display = "block"; };
+function changeStat(stat,val){
+  if(val===1 && totalPoints<=0) return;
+  if(val===-1 && stats[stat]<=0) return;
+  stats[stat]+=val;
+  totalPoints-=val;
+  document.getElementById(stat).textContent=stats[stat];
+  document.getElementById("pointsLeft").textContent=totalPoints;
+}
+function validateCharacter(){
+  const user = auth.currentUser;
+  if(!user){
+    alert("Tu dois être connecté pour créer un personnage !");
+    return;
+  }
+
+  if(totalPoints !== 0){
+    alert("Utilise tous les points !");
+    return;
+  }
+async function saveMyCharacter(){
+  const user = auth.currentUser;
+  if(!user || !myCharacter) return;
+  try{
+    await db.collection("popoteDragonCharacters").doc(user.uid).set(myCharacter);
+  }catch(e){
+    console.error("Erreur sauvegarde personnage :", e);
+  }
+}
+
+  const newChar = {
+    name: document.getElementById("name").value || "Héros",
+    cls: document.getElementById("class").value,
+    desc: document.getElementById("desc").value || "",
+    stats: {...stats},
+    level: 1,
+    xp: 0,
+    freePoints: 0,
+    lastAttack: {},
+    arena: {date:null,count:0}
+  };
+
+  db.collection("popoteDragonCharacters").doc(user.uid).set(newChar)
+    .then(() => {
+      myCharacter = newChar;
+      document.getElementById("createBtn").style.display = "none";
+      document.getElementById("playerBtn").textContent = newChar.name;
+      document.getElementById("playerBtn").style.display = "inline-block";
+      document.getElementById("creator").style.display = "none";
+      alert("Personnage créé !");
+    })
+    .catch(err => {
+      console.error("Erreur création personnage :", err);
+      alert("Erreur lors de la création");
+    });
+}
+
+
+
+// --- XP & Niveau ---
+function xpForNextLevel(level){ return level*10; }
+function checkLevelUp(character){
+  while(character.xp >= xpForNextLevel(character.level)){
+    character.xp -= xpForNextLevel(character.level);
+    character.level++;
+    character.freePoints+=2;
+  }
+}
+function getTotalXP(character){
+  let total = character.xp;
+  for(let lvl=1;lvl<character.level;lvl++){total+=xpForNextLevel(lvl);}
+  return total;
+}
+
+// --- Fiche joueur ---
+document.getElementById("playerBtn").onclick = () => {
+  if(!myCharacter) return;
+  refreshSheet(myCharacter);
+  document.getElementById("charSheet").style.display = "block";
+}
+
+
+function refreshSheet(c){
+  myCharacter = c;
+
+  document.getElementById("sheetName").textContent=c.name;
+  document.getElementById("sheetClass").textContent=c.cls;
+  document.getElementById("sheetLevel").textContent=c.level;
+  document.getElementById("sheetXP").textContent=c.xp+" XP";
+  document.getElementById("sheetDesc").textContent=c.desc;
+  document.getElementById("sheetForce").textContent=c.stats.force;
+  document.getElementById("sheetPV").textContent=c.stats.pv;
+  document.getElementById("sheetDefense").textContent=c.stats.defense;
+  document.getElementById("sheetAgilite").textContent=c.stats.agilite;
+  document.getElementById("freePoints").textContent=c.freePoints;
+  let xpForNext=xpForNextLevel(c.level);
+  document.getElementById("sheetXPBar").style.width=Math.min(100,(c.xp/xpForNext)*100)+"%";
+}
+function changeSheetStat(stat, val){
+  if(!myCharacter) return;
+  if(val === 1 && myCharacter.freePoints <= 0) return;
+  if(val === -1 && myCharacter.stats[stat] <= 0) return;
+
+  myCharacter.stats[stat] += val;
+  myCharacter.freePoints -= val;
+
+  const user = auth.currentUser;
+  if(!user) return;
+
+  db.collection("popoteDragonCharacters").doc(user.uid).update({
+    stats: myCharacter.stats,
+    freePoints: myCharacter.freePoints
+  }).then(()=>{
+    refreshSheet(myCharacter);
+  });
+}
+
+
+function closeSheet(){document.getElementById("charSheet").style.display="none";}
+function saveDragonData(){
+  const c = myCharacter;
+  const bosses = JSON.parse(localStorage.getItem("bosses") || "[]");
+
+  db.collection("popoteDragon").doc("main").set({
+  
+    bosses
+  })
+  .then(()=>console.log("🔥 Dragon sauvegardé"))
+  .catch(err=>console.error("Firebase error:", err));
+}
+
+
+
+function loadDragonData(callback){
+  db.collection("popoteDragon").doc("main").get()
+    .then(doc=>{
+      if(doc.exists && doc.data().bosses){
+        bosses = doc.data().bosses;
+      }
+      if(callback) callback();
+    })
+    .catch(err=>console.error("Firebase load error:", err));
+}
+
+
+// --- Admin simplifié basé sur l'auth Popote & Compagnie ---
+const ADMIN_EMAIL = "pierre.valentin8@gmail.com";
+document.getElementById("adminBtn").style.display = "none";
+
+auth.onAuthStateChanged(user=>{
+  if(user && user.email===ADMIN_EMAIL){
+    document.getElementById("adminBtn").style.display="inline-block";
+  }
+});
+
+document.getElementById("adminBtn").onclick = ()=>{
+  renderAdminList();
+  document.getElementById("adminPanel").style.display="block";
+}
+
+function renderAdminList(){
+  const container=document.getElementById("adminCharList");
+  container.innerHTML="";
+
+  db.collection("popoteDragonCharacters").get().then(snapshot=>{
+    snapshot.forEach(doc=>{
+      const c=doc.data();
+      const div=document.createElement("div");
+      div.className="admin-char-line";
+
+      const info=document.createElement("div");
+      info.className="admin-char-info";
+      info.textContent=`${c.name} (Niv ${c.level} - XP ${c.xp})`;
+
+      const actions=document.createElement("div");
+      actions.className="admin-char-actions";
+
+      const xpInput=document.createElement("input");
+      xpInput.type="number";
+      xpInput.placeholder="XP";
+
+      const btnXP=document.createElement("button");
+      btnXP.textContent="Donner XP";
+      btnXP.onclick=async()=>{
+        const xp=parseInt(xpInput.value);
+        if(isNaN(xp) || xp<=0) return alert("XP invalide");
+
+        c.xp += xp;
+        checkLevelUp(c);
+
+        await db.collection("popoteDragonCharacters").doc(doc.id).update({
+          xp:c.xp,
+          level:c.level,
+          freePoints:c.freePoints
+        });
+
+        renderAdminList();
+      };
+
+      const btnDel=document.createElement("button");
+      btnDel.textContent="Supprimer";
+      btnDel.onclick=async()=>{
+        if(confirm(`Supprimer ${c.name} ?`)){
+          await db.collection("popoteDragonCharacters").doc(doc.id).delete();
+          renderAdminList();
+        }
+      };
+
+      actions.appendChild(xpInput);
+      actions.appendChild(btnXP);
+      actions.appendChild(btnDel);
+
+      div.appendChild(info);
+      div.appendChild(actions);
+      container.appendChild(div);
+    });
+  });
+}
+
+
+
+function closeAdmin(){ 
+  document.getElementById("adminPanel").style.display = "none";
+}
+
+// --- Boss / Histoire ---
+let bosses=[{name:"Graduku", hpMax:100, hp:100, defeated:false, xpReward:20},{name:"Drakzor", hpMax:150, hp:150, defeated:false, xpReward:30},{name:"Tornak", hpMax:200, hp:200, defeated:false, xpReward:40},{name:"Morgath", hpMax:250, hp:250, defeated:false, xpReward:50},{name:"Zeroth", hpMax:300, hp:300, defeated:false, xpReward:60},{name:"Vulgrim", hpMax:350, hp:350, defeated:false, xpReward:70},{name:"Fangor", hpMax:400, hp:400, defeated:false, xpReward:80},{name:"Cindral", hpMax:450, hp:450, defeated:false, xpReward:90},{name:"Oryn", hpMax:500, hp:500, defeated:false, xpReward:100},{name:"Eldrax", hpMax:600, hp:600, defeated:false, xpReward:120}];
+
+function saveBosses(){ 
+  saveDragonData();
+}
+document.getElementById("storyBtn").onclick = async () => {
+  try{
+    const doc = await db.collection("popoteDragon").doc("main").get();
+    console.log("Document story:", doc.exists, doc.data());
+
+    if(doc.exists && doc.data().bosses){
+      bosses = doc.data().bosses;
+    } else {
+      alert("Aucun boss trouvé dans Firebase !");
+    }
+
+    renderBossProgress();
+    renderBossList();
+    document.getElementById("storyPanel").style.display="block";
+  }catch(e){
+    console.error("Erreur chargement Histoire :", e);
+    alert("Erreur de chargement de l'histoire : " + e.message);
+  }
+};
+
+function initBossesIfEmpty(){
+  db.collection("popoteDragon").doc("main").get().then(doc=>{
+    if(!doc.exists){
+      db.collection("popoteDragon").doc("main").set({bosses:bosses});
+    }
+  });
+}
+
+
+function closeStory(){ document.getElementById("storyPanel").style.display="none"; }
+
+function renderBossProgress(){
+  const container=document.getElementById("bossProgress");
+  container.innerHTML="";
+  bosses.forEach((boss,index)=>{
+    const div=document.createElement("div");
+    div.className="bossProgressItem";
+    if(boss.defeated) div.classList.add("bossVaincu");
+    else if(index===0 || bosses[index-1].defeated) div.classList.add("bossDisponible");
+    else div.classList.add("bossBloque");
+    div.textContent=boss.name.charAt(0);
+    container.appendChild(div);
+  });
+}
+
+function renderBossList(){
+  const container=document.getElementById("bossList");
+  container.innerHTML="";
+  if(!myCharacter) return;
+
+  bosses.forEach((boss,index)=>{
+    const div=document.createElement("div");
+    div.className="boss-container";
+    const infoDiv=document.createElement("div");
+    infoDiv.className="boss-info";
+
+    let status="";
+    if(index>0 && !bosses[index-1].defeated){ status=" (Bloqué)"; div.style.opacity="0.5"; }
+    else if(boss.defeated){ status=" (Vaincu)"; }
+
+    infoDiv.textContent=`${boss.name} - PV: ${boss.hp}/${boss.hpMax}${status}`;
+
+    const hpBar=document.createElement("div"); hpBar.className="boss-hp-bar";
+    const hpFill=document.createElement("div"); hpFill.className="boss-hp-fill";
+    hpFill.style.width=(boss.hp/boss.hpMax*100)+"%";
+    hpBar.appendChild(hpFill);
+    infoDiv.appendChild(hpBar);
+    div.appendChild(infoDiv);
+
+    if(!boss.defeated && (index===0 || bosses[index-1].defeated)){
+      const attackBtn=document.createElement("button"); 
+      attackBtn.textContent="Attaquer";
+      attackBtn.onclick=()=>{ attackBoss(index); };
+      div.appendChild(attackBtn);
+    }
+    container.appendChild(div);
+  });
+}
+
+
+function attackBoss(index){
+  if(!myCharacter) return;
+  const boss = bosses[index];
+  const today = new Date().toDateString();
+
+  if(!myCharacter.lastAttack) myCharacter.lastAttack = {};
+  if(myCharacter.lastAttack[boss.name] === today){
+    alert("Vous ne pouvez attaquer ce boss qu'une fois par jour !");
+    return;
+  }
+
+  const dmg = Math.floor(myCharacter.stats.force + myCharacter.stats.agilite/2);
+  boss.hp = Math.max(0, boss.hp - dmg);
+
+  if(boss.hp === 0){
+    boss.defeated = true;
+    myCharacter.xp += boss.xpReward;
+    checkLevelUp(myCharacter);
+    alert(`Boss ${boss.name} vaincu !`);
+  }
+
+  myCharacter.lastAttack[boss.name] = today;
+
+  saveBosses();
+  saveMyCharacter();
+
+  renderBossProgress();
+  renderBossList();
+}
+
+
+
+// --- Arène ---
+document.getElementById("arenaBtn").onclick = () => {
+  if(!myCharacter) return alert("Crée ton personnage !");
+  document.getElementById("arenaPanel").style.display = "block";
+  document.getElementById("arenaLog").textContent = "";
+  document.getElementById("arenaStatus").textContent = "Prêt pour le combat ?";
+};
+
+
+function closeArena(){ document.getElementById("arenaPanel").style.display="none"; }
+
+document.getElementById("fightBtn").onclick = async () => {
+  if(!myCharacter) return;
+  const today = new Date().toDateString();
+
+  if(!myCharacter.arena) myCharacter.arena = {date:today,count:0};
+  if(myCharacter.arena.date !== today) myCharacter.arena = {date:today,count:0};
+  if(myCharacter.arena.count >= 3){
+    alert("Tu as déjà fait 3 combats aujourd'hui !");
+    return;
+  }
+
+  const opponent = {
+    name:"Ennemi",
+    stats:{force:5,defense:3,agilite:2,pv:20}
+  };
+
+  document.getElementById("arenaPlayerName").textContent = myCharacter.name;
+  document.getElementById("arenaOpponentName").textContent = opponent.name;
+
+  const log = await duelAnimated(myCharacter, opponent);
+
+  myCharacter.arena.count += 1;
+  saveMyCharacter();
+  document.getElementById("arenaLog").textContent = log;
+};
+
+
+async function duelAnimated(p1, p2){
+  let hp1 = p1.stats.pv, hp2 = p2.stats.pv;
+  let maxHP1 = hp1, maxHP2 = hp2;
+  let log = `Combat ${p1.name} vs ${p2.name}\n\n`;
+
+  const playerHPBar = document.getElementById("arenaPlayerHP");
+  const opponentHPBar = document.getElementById("arenaOpponentHP");
+
+  function updateHP(bar, hp, maxHp){
+    bar.style.width = Math.max(0,(hp/maxHp)*100) + "%";
+  }
+
+  while(hp1>0 && hp2>0){
+    await new Promise(r=>setTimeout(r,500));
+    let dmg1 = Math.max(0, p1.stats.force - p2.stats.defense);
+    if(Math.random()*100 < p2.stats.agilite*5) dmg1=0;
+    hp2 -= dmg1;
+    log += `${p1.name} inflige ${dmg1} à ${p2.name} (${hp2>0?hp2:0} PV restant)\n`;
+    updateHP(opponentHPBar,hp2,maxHP2);
+    await new Promise(r=>setTimeout(r,500));
+    if(hp2<=0) break;
+
+    let dmg2 = Math.max(0, p2.stats.force - p1.stats.defense);
+    if(Math.random()*100 < p1.stats.agilite*5) dmg2=0;
+    hp1 -= dmg2;
+    log += `${p2.name} inflige ${dmg2} à ${p1.name} (${hp1>0?hp1:0} PV restant)\n`;
+    updateHP(playerHPBar,hp1,maxHP1);
+    await new Promise(r=>setTimeout(r,500));
+  }
+
+  if(hp1>0) log += `\n${p1.name} gagne le duel !`;
+  else log += `\n${p2.name} gagne le duel !`;
+
+  return log;
+}
+
+// --- Initialisation page ---
+window.onload = () => {
+  loadMyCharacter(() => {
+    loadDragonData(() => {
+      renderBossProgress();
+      renderBossList();
+      initBossesIfEmpty();
+    });
+  });
+};
+
+
+
+
+</script>
+</body>
+</html>
