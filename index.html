@@ -1,4110 +1,899 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Popote & Dragons</title>
+<title>Popote & Compagnie</title>
 <style>
-:root{
-  --bg1:#1a1410;
-  --bg2:#0f0c09;
+body { margin:0; font-family: Arial,sans-serif; background:white; text-align:center; }
+h1,h2 { color: orange; font-family: "Comic Sans MS", cursive; }
+button {
+    background: orange; color:white; border:none; border-radius:12px; padding:10px 15px; margin:5px;
+    cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.2); transition:0.2s;
+}
+button:hover { transform: scale(1.05); }
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+#monthsGrid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; max-width:500px; margin:20px auto; }
+#membersList { max-width:600px; margin:20px auto; padding:10px; text-align:left; }
 
-  --paper:#fbf2df;
-  --paper2:#fff8ea;
-  --ink:#241b12;
-  --muted:#6c5a44;
-
-  --gold:#d4af37;
-  --gold2:#b89020;
-  --line:#e6d6ba;
-
-  --panel: rgba(18,14,10,.72);
-  --panel2: rgba(18,14,10,.58);
-
-  --shadow: 0 18px 55px rgba(0,0,0,.45);
-  --shadowSoft: 0 10px 30px rgba(0,0,0,.25);
-  --r: 18px;
+.memberItem span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 18px;
+    border-radius: 12px;
+    background-color: #ffe5b4; /* ou couleur dynamique */
 }
 
-/* =========================
-   Base / Mobile first
-   ========================= */
-*{ box-sizing:border-box; }
-html, body{ height:100%; }
 
-body{
-  margin:0;
-  font-family: 'IM Fell English SC', serif;
-  color: var(--paper);
-  background:
-    radial-gradient(1200px 700px at 50% -10%, rgba(212,175,55,.14), transparent 60%),
-    radial-gradient(900px 500px at 20% 110%, rgba(212,175,55,.10), transparent 60%),
-    linear-gradient(180deg, var(--bg1), var(--bg2));
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding: 18px 14px;
+/* Effet au survol */
+.memberItem span:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-/* Texte lisible partout */
-p, label, span, div{
-  text-shadow: 0 1px 0 rgba(0,0,0,.35);
+.memberItem span:hover { transform: translateY(-3px); box-shadow:0 6px 12px rgba(0,0,0,0.2); }
+table { border-collapse:collapse; margin:20px auto; width:85%; }
+th,td { border:1px solid black; padding:6px; }
+input { width:60px; }
+footer { position:fixed; bottom:10px; width:100%; font-size:12px; }
+/* MODALS */
+.modal-content {
+    background: #fff8f0; /* fond doux et chaleureux */
+    border-radius: 20px;
+    padding: 30px 25px;
+    max-width: 400px;
+    margin: auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    text-align: center;
+    animation: popIn 0.25s ease;
 }
 
-/* =========================
-   Containers (Login / Village)
-   ========================= */
-.login-container,
-.village-container{
-  width: min(560px, 100%);
-  background: linear-gradient(180deg, var(--panel), var(--panel2));
-  border: 1px solid rgba(212,175,55,.35);
-  border-radius: var(--r);
-  box-shadow: var(--shadow);
-  padding: 18px 16px;
-  text-align:center;
-  position: relative;
-  overflow:hidden;
+/* Animation apparition */
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-/* bordure “dorée” interne */
-.login-container::before,
-.village-container::before{
-  content:"";
-  position:absolute;
-  inset:10px;
-  border-radius: calc(var(--r) - 8px);
-  border: 1px solid rgba(212,175,55,.25);
-  pointer-events:none;
+/* TITRES MODALS */
+.modal-content h3 {
+    font-family: 'Fredoka One', cursive;
+    color: #ff7f50;
+    margin-bottom: 20px;
 }
 
-/* petit glow fantasy */
-.login-container::after,
-.village-container::after{
-  content:"";
-  position:absolute;
-  inset:-40px;
-  background:
-    radial-gradient(600px 180px at 50% 0%, rgba(212,175,55,.12), transparent 60%),
-    radial-gradient(500px 220px at 10% 100%, rgba(212,175,55,.08), transparent 60%),
-    radial-gradient(500px 220px at 90% 100%, rgba(212,175,55,.08), transparent 60%);
-  pointer-events:none;
-  opacity:.85;
-}
-
-h1,h2,h3{
-  margin: 6px 0 10px;
-  color: var(--gold);
-  letter-spacing:.5px;
-  text-shadow: 0 2px 0 rgba(0,0,0,.55);
-}
-
-h1{ font-size: 34px; }
-h2{ font-size: 26px; }
-h3{ font-size: 18px; color: #e7d8b6; }
-
-.login-footer{
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(212,175,55,.35);
-  color: rgba(245,240,220,.85);
-  font-size: 14px;
-}
-
-/* =========================
-   Buttons (global)
-   ========================= */
-button{
-  font-family: 'IM Fell English SC', serif;
-  width: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(212,175,55,.40);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.12));
-  color: var(--paper);
-  padding: 12px 14px;
-  margin: 6px 0;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 10px 22px rgba(0,0,0,.25);
-  transition: transform .06s ease, filter .15s ease, border-color .15s ease;
-}
-
-button:hover{ filter: brightness(1.05); border-color: rgba(212,175,55,.7); }
-button:active{ transform: translateY(1px); }
-
-/* bouton “primaire doré” */
-.btn-primary{
-  background: linear-gradient(180deg, var(--gold), var(--gold2));
-  color: #1b1307;
-  font-weight: 700;
-  border-color: rgba(0,0,0,.10);
-}
-
-/* =========================
-   Village layout (mobile-first)
-   ========================= */
-.village-header{
-  text-align:center;
-  margin-bottom: 6px;
-}
-
-#villageImage{
-  width: 100%;
-  max-width: 520px;
-  border-radius: 16px;
-  border: 1px solid rgba(212,175,55,.35);
-  box-shadow: var(--shadowSoft);
-}
-
-.village-header h1{
-  margin-top: 12px;
-  font-size: 30px;
-}
-
-/* mobile: en colonne */
-.village-main{
-  display:flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-}
-
-.player-panel{
-  background: rgba(0,0,0,.28);
-  border: 1px solid rgba(212,175,55,.28);
-  border-radius: 16px;
-  padding: 14px 14px;
-  color: rgba(245,240,220,.95);
-  box-shadow: 0 10px 24px rgba(0,0,0,.20);
-}
-
-.actions-panel{
-  display:flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-}
-
-.actions-panel button{
-  width: 100%;
-}
-
-/* =========================
-   Bank (mobile friendly)
-   ========================= */
-.bank-dashboard{
-  width: 100%;
-  border-radius: 16px;
-  padding: 14px 14px;
-  margin: 10px 0 0;
-  background:
-    linear-gradient(180deg, rgba(251,242,223,.96), rgba(245,235,210,.93)),
-    repeating-linear-gradient(
-      135deg,
-      rgba(0,0,0,.015) 0px,
-      rgba(0,0,0,.015) 2px,
-      transparent 2px,
-      transparent 9px
-    );
-  border: 1px solid rgba(212,175,55,.35);
-  box-shadow: var(--shadowSoft);
-  color: var(--ink);
-  font-family: 'IM Fell English SC', serif;
-}
-
-.bank-dashboard h3{
-  margin: 0 0 10px;
-  text-align:center;
-  color: #7a4a28;
-  text-shadow: none;
-  font-size: 20px;
-}
-
-.bank-row{
-  display:flex;
-  justify-content: space-between;
-  align-items:center;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  border-radius: 14px;
-  font-weight: 700;
-  border: 1px solid rgba(0,0,0,.06);
-}
-
-.gold-row{ background: #fff5cf; color:#9a6a00; }
-.house-row{ background: #e9f4ff; color:#1e67c6; }
-.village-row{ background: #f6e9ff; color:#7a2aa8; }
-
-.bank-label{ font-size: 15px; }
-.bank-value{ font-size: 16px; }
-
-/* =========================
-   Overlay + Popups (D&D parchment)
-   + Animation ouverture
-   ========================= */
-.overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background: rgba(5,4,3,.55);
-  backdrop-filter: blur(2px);
-  z-index:500;
-  animation: overlayIn .16s ease;
-}
-
-/* animation overlay (se joue quand display passe à block) */
-@keyframes overlayIn{
-  from{ opacity:0; }
-  to{ opacity:1; }
-}
-
-/* POPUP parchemin unifié */
-.popup{
-  display:none;
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%,-50%) scale(.98);
-  z-index: 1000;
-
-  width: min(92vw, 720px);
-  max-height: 86vh;
-  overflow:auto;
-
-  /* Texture parchemin (100% CSS) */
-  background:
-    radial-gradient(1100px 600px at 50% -20%, rgba(212,175,55,.14), transparent 60%),
-    radial-gradient(800px 420px at 10% 120%, rgba(161,113,49,.10), transparent 60%),
-    radial-gradient(800px 420px at 90% 120%, rgba(161,113,49,.10), transparent 60%),
-    repeating-linear-gradient(
-      0deg,
-      rgba(0,0,0,.018) 0px,
-      rgba(0,0,0,.018) 1px,
-      transparent 1px,
-      transparent 6px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(0,0,0,.012) 0px,
-      rgba(0,0,0,.012) 1px,
-      transparent 1px,
-      transparent 10px
-    ),
-    linear-gradient(180deg, var(--paper2), var(--paper));
-
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  box-shadow: var(--shadow);
-  padding: 16px 16px;
-
-  /* Animation ouverture */
-  opacity: 0;
-  animation: popupIn .18s ease forwards;
-}
-
-/* Animation popup (quand display passe à block) */
-@keyframes popupIn{
-  from{
-    opacity: 0;
-    transform: translate(-50%,-48%) scale(.96);
-    filter: blur(.2px);
-  }
-  to{
-    opacity: 1;
-    transform: translate(-50%,-50%) scale(1);
-    filter: blur(0);
-  }
-}
-
-/* cadre interne doré */
-.popup::before{
-  content:"";
-  position:absolute;
-  inset: 10px;
-  border-radius: 14px;
-  border: 1px solid rgba(212,175,55,.35);
-  pointer-events:none;
-}
-
-/* “grain” parchemin très léger */
-.popup::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(0,0,0,.045), transparent 35%),
-    radial-gradient(circle at 80% 70%, rgba(0,0,0,.035), transparent 38%),
-    radial-gradient(circle at 50% 90%, rgba(0,0,0,.03), transparent 40%);
-  mix-blend-mode: multiply;
-  opacity:.35;
-  pointer-events:none;
-}
-
-.popup h2{
-  margin: 2px 0 10px;
-  font-size: 26px;
-  color: #7a4a28;
-  text-shadow: none;
-}
-.popup h3{ margin: 6px 0 10px; color: var(--muted); text-shadow:none; }
-
-.popup p, .popup label{ color: var(--muted); text-shadow:none; }
-
-.popup input, .popup select{
-  width: 100%;
-  display:block;
-  margin: 10px 0;
-  padding: 11px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.75);
-  color: var(--ink);
-  font-size: 16px;
-  outline:none;
-}
-
-.popup input:focus, .popup select:focus{
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(212,175,55,.22);
-}
-
-.popup button{
-  width: 100%;
-  margin: 8px 0 0;
-  border-radius: 14px;
-  border: 1px solid rgba(0,0,0,.08);
-  background: rgba(255,255,255,.88);
-  color: var(--ink);
-  box-shadow: 0 10px 22px rgba(0,0,0,.18);
-}
-
-.popup button:hover{
-  border-color: rgba(212,175,55,.75);
-  background: rgba(212,175,55,.12);
-}
-
-.popup .btn-primary{
-  background: linear-gradient(180deg, var(--gold), var(--gold2));
-  color: #1a1206;
-  font-weight: 800;
-}
-
-/* =========================
-   Character sheet
-   ========================= */
-#characterSheetPopup{
-  width: min(92vw, 520px);
-}
-
-#pcText{
-  font-weight: 800;
-  font-size: 16px;
-  color: var(--ink);
-  background: rgba(212,175,55,.18);
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(212,175,55,.25);
-  text-shadow:none;
-}
-
-.stat-row{
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  gap: 10px;
-  background: rgba(255,255,255,.74);
-  padding: 10px 10px;
-  border-radius: 14px;
-  border: 1px solid rgba(0,0,0,.06);
-  margin: 8px 0;
-  color: var(--ink);
-  font-weight: 800;
-  text-shadow:none;
-}
-
-.stat-row span{
-  min-width: 40px;
-  text-align:center;
-}
-
-.stat-row button{
-  width: 44px;
-  height: 40px;
-  padding: 0;
-  margin: 0;
-  border-radius: 12px;
-  background: linear-gradient(180deg, var(--gold), var(--gold2));
-  color: #1b1307;
-  font-weight: 900;
-  border: 1px solid rgba(0,0,0,.08);
-}
-
-/* =========================
-   Explore / Bestiary / Upgrade (unifiés)
-   ========================= */
-#explorePopup, #bestiaryPopup, #upgradeHousePopup{
-  width: min(92vw, 720px);
-}
-
-#bestiaryContent{
-  max-height: 55vh;
-  overflow:auto;
-}
-
-/* =========================
-   Admin tables responsive
-   ========================= */
-#adminPlayersList{ overflow-x:auto; }
-
-.popup table{
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 14px;
-  overflow:hidden;
-  border: 1px solid var(--line);
-}
-
-.popup thead th{
-  background: linear-gradient(180deg, rgba(212,175,55,.35), rgba(212,175,55,.18));
-  color: var(--ink);
-  text-align:left;
-  padding: 10px;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.popup td{
-  padding: 10px;
-  border-bottom: 1px solid var(--line);
-}
-
-.popup tbody tr:nth-child(2n){
-  background: rgba(255,255,255,.35);
-}
-
-#adminPlayersList select,
-#adminPlayersList input{
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.78);
-  color: var(--ink);
-  font-family: 'IM Fell English SC', serif;
-}
-
-/* =========================
-   Combat UI (tes classes existantes)
-   ========================= */
-.combat-wrap{ display:flex; flex-direction:column; gap:12px; }
-.combat-top{
-  display:grid;
-  grid-template-columns: 1fr 70px 1fr;
-  align-items:center;
-  gap:10px;
-}
-.combat-vs{
-  text-align:center;
-  font-size:18px;
-  opacity:.85;
-  text-shadow:none;
-  color: var(--muted);
-}
-.combat-card{
-  background: rgba(255,255,255,.62);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.10);
-  color: var(--ink);
-  text-shadow:none;
-}
-.combat-name{ font-size: 20px; margin: 0 0 6px; }
-.combat-emoji{ font-size: 54px; line-height: 1; margin-bottom: 8px; }
-.combat-stats{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  color: var(--muted);
-  font-size: 14px;
-  text-shadow:none;
-}
-.badge{
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.58);
-}
-.hpbar{
-  margin-top: 10px;
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(0,0,0,.08);
-  overflow:hidden;
-  border: 1px solid rgba(0,0,0,.08);
-}
-.hpfill{
-  height:100%;
-  width:100%;
-  background: linear-gradient(90deg, rgba(34,197,94,.95), rgba(212,175,55,.95));
-  transition: width .35s ease;
-}
-.combat-log{
-  background: rgba(255,255,255,.72);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 10px 12px;
-  color: var(--ink);
-  font-size: 15px;
-  text-shadow:none;
-}
-
-/* petites animations */
-@keyframes popIn { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.combat-animate{ animation: popIn .18s ease; }
-@keyframes shake { 0%{transform:translateX(0)} 25%{transform:translateX(-4px)} 50%{transform:translateX(4px)} 75%{transform:translateX(-3px)} 100%{transform:translateX(0)} }
-.shake{ animation: shake .22s ease; }
-
-/* =========================
-   Desktop enhancements
-   ========================= */
-@media (min-width: 900px){
-  body{ padding: 26px; }
-  .village-container{ width: min(980px, 100%); }
-  .village-main{ flex-direction: row; align-items:flex-start; }
-  .player-panel{ flex: 2; }
-  .actions-panel{ flex: 1; }
-}
-/* =========================
-   Boutons en 2 colonnes
-   (Fiche perso + Explorer)
-   ========================= */
-
-/* Fiche perso : Valider / Annuler côte à côte */
-#characterSheetPopup #saveStatsBtn,
-#characterSheetPopup #cancelStatsBtn{
-  width: auto;            /* annule le 100% global */
-  margin: 0;              /* on gère via gap */
-}
-
-#characterSheetPopup{
-  /* petit confort */
-  padding-bottom: 18px;
-}
-
-#characterSheetPopup #saveStatsBtn,
-#characterSheetPopup #cancelStatsBtn{
-  flex: 1;
-}
-
-/* on enveloppe les 2 boutons via un layout “auto” (sans modifier ton HTML) */
-#characterSheetPopup #saveStatsBtn{
-  float: left;
-  width: calc(50% - 6px);
-}
-#characterSheetPopup #cancelStatsBtn{
-  float: right;
-  width: calc(50% - 6px);
-}
-
-/* clear float pour éviter les soucis de layout */
-#characterSheetPopup #cancelStatsBtn::after{
-  content:"";
-  display:block;
-  clear:both;
-}
-
-/* Explorer : Combat suivant / Fermer côte à côte */
-#explorePopup #exploreNext,
-#explorePopup #exploreClose{
-  width: auto;
-  margin: 0;
-  flex: 1;
-}
-
-/* ton HTML a déjà un wrapper en flex avec gap => on force juste le bon sizing */
-#explorePopup button{
-  max-width: none;
-}
-
-/* Sur très petit écran, on repasse en colonne */
-@media (max-width: 360px){
-  #characterSheetPopup #saveStatsBtn,
-  #characterSheetPopup #cancelStatsBtn{
-    float:none;
+/* INPUTS */
+.modal-content input {
     width: 100%;
-    margin-top: 8px;
-  }
-}
-#sheetHouseDefBonus{
-  margin-top: 6px;
-  font-weight: bold;
-  color: #6b4226;
-  background: rgba(212,175,55,0.15);
-  padding: 6px 10px;
-  border-radius: 10px;
-  display: inline-block;
-}
-/* =========================
-   ADMIN – Boutons plus petits
-   ========================= */
-
-/* Boutons dans la table Admin Joueurs */
-#adminPlayersList button{
-  padding: 6px 8px;        /* plus petit */
-  font-size: 13px;         /* texte plus fin */
-  border-radius: 10px;
-  margin: 2px 0;
-  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    border: 1px solid #ffb97f;
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s;
 }
 
-/* Boutons dangereux (supprimer) */
-#adminPlayersList button.danger,
-#adminPlayersList button.delete{
-  background: linear-gradient(180deg, #b33a3a, #7a1f1f);
-  color: #fff;
-  border-color: rgba(0,0,0,.25);
+.modal-content input:focus {
+    border-color: #ff7f50;
+    box-shadow: 0 0 8px rgba(255,127,80,0.3);
+    outline: none;
 }
 
-/* Boutons action simple (XP / sauvegarde) */
-#adminPlayersList button.save,
-#adminPlayersList button.xp{
-  background: linear-gradient(180deg, #d4af37, #b89020);
-  color: #1b1307;
-  font-weight: 700;
+/* BOUTONS DANS MODALS */
+.modal-content button {
+    width: 100%;
+    background: linear-gradient(135deg, #ff7f50, #ff9f1c);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s;
 }
 
-/* Sur mobile : encore plus compact */
-@media (max-width: 420px){
-  #adminPlayersList button{
-    font-size: 12px;
-    padding: 5px 6px;
-  }
+.modal-content button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
 }
-/* Bouton Règles discret */
-.btn-rules{
+
+/* BOUTON "👁️" pour mot de passe */
+.modal-content button.eye-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+/* Conteneur input + bouton */
+.password-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px; /* espace entre input et bouton */
+  margin-bottom: 15px;
+}
+
+/* Input mot de passe */
+.password-row input {
+  flex: 1; /* prend tout l'espace restant */
+  padding: 12px 15px;
+  border-radius: 15px;
+  border: 1px solid #ffb97f;
+  font-size: 16px;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Bouton 👁️ */
+.password-row button.eye-btn {
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff7f50, #ff9f1c);
+  color: white;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.password-row button.eye-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+/* Conteneur du mot de passe */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Input mot de passe */
+.password-container input {
+    width: 100%;
+    padding: 12px 40px 12px 15px; /* espace à droite pour le bouton */
+    border-radius: 15px;
+    border: 1px solid #ffb97f;
+    font-size: 16px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Bouton 👁️ */
+.password-container button.eye-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #ff7f50;
+}
+
+
+/* Boutons discrets en haut à gauche */
+.top-left {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 1000;
+}
+
+.mini-btn {
   background: transparent;
-  border: 1px solid rgba(212,175,55,.35);
-  color: rgba(245,240,220,.85);
-  font-size: 14px;
+  color: orange;
+  border: 1px solid orange;
+  border-radius: 8px;
   padding: 6px 10px;
-  border-radius: 12px;
-  width: auto;
-  align-self: center;
-  opacity: .85;
+  font-size: 12px;
+  box-shadow: none;
 }
 
-.btn-rules:hover{
-  opacity: 1;
-  background: rgba(212,175,55,.12);
-}
-/* Bouton village discret mais joli */
-#teamVillageBtn{
-  opacity: .92;
-  font-size: .95em;
+.mini-btn:hover {
+  background: orange;
+  color: white;
 }
 
-/* Ligne bâtiment */
-.building-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  padding:10px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.45);
-  margin: 8px 0;
+/* Gros bouton Popote centré mobile */
+.main-popote-btn {
+  margin-top: 120px;
+  padding: 20px 40px;
+  font-size: 26px;
+  border-radius: 25px;
+  background: linear-gradient(135deg, orange, #ff9f1c);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.building-row .bname{ font-weight: 800; }
-.building-row .bmeta{ color: var(--muted); font-size: 14px; }
-.building-row .bbadges{ display:flex; gap:8px; flex-wrap:wrap; }
-.building-row .bbadges .badge{ font-size: 13px; }
-.building-row .bactions{ display:flex; gap:8px; }
-.building-row button{ white-space:nowrap; }
-.building-row.built{
-  background: rgba(212,175,55,.16);
-  border-color: rgba(212,175,55,.35);
+
+.main-popote-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+/* Mobile first */
+@media (max-width: 600px) {
+  .main-popote-btn {
+    width: 80%;
+    font-size: 28px;
+    padding: 25px;
+  }
+}
+.intro-text {
+  max-width: 90%;
+  margin: 60px auto 30px auto;
+  text-align: center;
+}
+
+.intro-text h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: orange;
+}
+
+.intro-text p {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .intro-text h2 {
+    font-size: 20px;
+  }
+  .intro-text p {
+    font-size: 14px;
+  }
+}
+.memberItem {
+  cursor: grab;
+}
+
+.memberItem:active {
+  cursor: grabbing;
+}
+
+#sortModal button {
+  width: 100%;
+}
+/* SECTION ANNONCES */
+.annonces-box {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #fff7e6;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: left;
+}
+
+.annonces-box h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.annonces-box ul {
+  list-style: none;
+  padding: 0;
+}
+
+.annonces-box li {
+  padding: 8px 0;
+  border-bottom: 1px dashed #f0b35c;
+  font-size: 14px;
+  color: #444;
+}
+
+.annonces-box li:last-child {
+  border-bottom: none;
+}
+.password-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px; /* très petit écart entre input et bouton */
+    margin-bottom: 15px;
+}
+
+.password-row input {
+    flex: 1; /* prend tout l'espace restant */
+    padding: 12px 15px;
+    border-radius: 15px;
+    border: 1px solid #ffb97f;
+    font-size: 16px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Petit rond juste à côté */
+.password-row button.eye-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ff7f50;
+    color: white;
+    font-size: 18px;  /* taille emoji */
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.password-row button.eye-btn:hover {
+    transform: scale(1.2);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
 }
 
 
 </style>
 </head>
 <body>
-<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+  <!-- PAGE LOGIN / INSCRIPTION -->
+<div id="authPage">
+  <h1>Popote & Compagnie</h1>
 
-<!-- Firebase SDK -->
+  <div class="intro-text">
+    <h2>Bienvenue !</h2>
+    <p>Connectez-vous ou créez un compte pour accéder à Popote & Cie.</p>
+  </div>
+
+  <div style="margin:20px;">
+    <button class="main-popote-btn" onclick="showLoginForm()">Connexion</button>
+    <button class="main-popote-btn" onclick="askUnitCode()">Créer un compte</button>
+
+  </div>
+
+  <!-- FORMULAIRE CONNEXION -->
+  <div id="loginForm" class="modal-content" style="display:none; max-width:400px; margin:auto;">
+    <h3>Connexion</h3>
+    <input type="email" id="loginEmail" placeholder="Email"><br><br>
+   <div class="password-row">
+  <input type="password" id="loginPassword" placeholder="Mot de passe">
+  <button type="button" class="eye-btn" onclick="togglePassword('loginPassword')">👁️</button>
+</div>
+
+    <br>
+    <button onclick="login()">Valider</button>
+    <button onclick="hideForms()">Annuler</button>
+  </div>
+
+  <!-- FORMULAIRE CREATION COMPTE -->
+  <div id="signupForm" class="modal-content" style="display:none; max-width:400px; margin:auto;">
+    <h3>Créer un compte</h3>
+    <input type="email" id="signupEmail" placeholder="Email"><br><br>
+    <div class="password-row">
+  <input type="password" id="loginPassword" placeholder="Mot de passe">
+  <button type="button" class="eye-btn" onclick="togglePassword('loginPassword')">👁️</button>
+</div>
+
+    <br>
+    <button onclick="signup()">Créer</button>
+    <button onclick="hideForms()">Annuler</button>
+  </div>
+</div>
+
+
+<!-- ACCUEIL -->
+<div id="homePage" style="display:none;">
+
+<h1>Popote & Compagnie</h1>
+<div class="top-left">
+  <button class="mini-btn" onclick="openLogin()">Connexion</button>
+  <button class="mini-btn" onclick="logout()">Déconnexion</button>
+</div>
+<div class="intro-text">
+  <h2>La Popote Montechoise se modernise.</h2>
+  <p>Popote & Compagnie est là pour sublimer ton expérience avec la popote.</p>
+</div>
+
+<!-- SECTION ANNONCES -->
+<div class="annonces-box">
+  <h2>📢 Annonces</h2>
+  <ul id="annoncesList">
+    <li><strong>🆕 </strong> : Lancement de Popote & Compagnie !</li>
+    <li>📅 Suivi mensuel des consommations</li>
+    <li>⭐ Création 🍗 Popote & Dragon 🐉</li>
+    <li>🚀 À venir : création rubrique SPORT </li>
+  </ul>
+</div>
+
+
+<button class="main-popote-btn" onclick="goPopote()">🍽️ Popote</button>
+<button class="main-popote-btn" onclick="goDragon()">🍗 Popote & Dragon 🐉</button>
+
+
+<footer>La Popote 2.0 - MAJ 10 - Créé avec l'aide de Chat GPT</footer>
+</div>
+
+
+
+<!-- PAGE POPOTE -->
+<div id="popotePage" style="display:none;">
+  <h2>Popote</h2>
+  <button onclick="openAdd()">+ Ajouter membre</button>
+  <button onclick="openSort()">🔀 Trier les membres</button>
+  <button onclick="goHome()">Retour</button>
+
+  <h3>Membres</h3>
+  <div id="membersList"></div>
+
+  <h3>Mois</h3>
+  <div id="monthsGrid"></div>
+</div>
+
+
+<!-- PAGE MOIS -->
+<div id="monthPage" style="display:none;">
+<h2 id="monthTitle"></h2>
+<button onclick="goPopote()">Retour Popote</button>
+
+<table>
+<thead>
+<tr>
+<th>Nom</th>
+<th>Prénom</th>
+<th>Eau</th>
+<th>Soda</th>
+<th>Gourmandise</th>
+<th>Café</th>
+<th>Total €</th>
+</tr>
+</thead>
+<tbody id="monthTable"></tbody>
+</table>
+<div class="totalBox">
+Total du mois : <span id="monthTotal">0.00</span> €
+</div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div class="modal" id="loginModal">
+<div class="modal-content">
+<h3>Connexion</h3>
+<input type="text" id="pseudo" placeholder="Email"><br><br>
+<input type="password" id="password" placeholder="Mot de passe"><br><br>
+<button onclick="login()">Valider</button>
+<button onclick="closeLogin()">Retour</button>
+</div>
+</div>
+
+<!-- MODAL AJOUT -->
+<div class="modal" id="addModal">
+<div class="modal-content">
+<h3>Ajouter un membre</h3>
+<input type="text" id="nom" placeholder="Nom"><br><br>
+<input type="text" id="prenom" placeholder="Prénom"><br><br>
+<button onclick="addMember()">Valider</button>
+<button onclick="closeAdd()">Annuler</button>
+</div>
+</div>
+<!-- MODAL TRI MEMBRES -->
+<div class="modal" id="sortModal">
+  <div class="modal-content">
+    <h3>Trier les membres</h3>
+    <button onclick="sortMembers('alpha')">🔤 Ordre alphabétique</button><br><br>
+    <button onclick="sortMembers('asc')">📈 Total croissant</button><br><br>
+    <button onclick="sortMembers('desc')">📉 Total décroissant</button><br><br>
+    <button onclick="closeSort()">Annuler</button>
+  </div>
+</div>
+
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-
-
-<!-- PAGES -->
-<div class="login-container" id="loginPage">
-    <h1>Popote & Dragons</h1>
-    <button id="createBtn">Créer un compte</button>
-    <button id="loginBtn">Connexion</button>
-
-    <div class="login-footer">
-        2026 - Imaginé et créé par PM avec l'aide de Chat GPT - MAJ 038 - 10.02.2026
-    </div>
-</div>
-
-
-<!-- ===== MAISON ET BANQUE ===== -->
-<div class="village-container" id="villagePage" style="display:none;">
-    <!-- IMAGE HEADER -->
-    <div class="village-header">
-        <img src="Maison 1.png" alt="Maison Fantasy" id="villageImage">
-        <h1>Maison</h1>
-    </div>
-
-    <div class="village-main">
-        <!-- INFOS JOUEUR -->
-        <div class="player-panel">
-            <h2 id="welcomeText">Bienvenue, aventurier.</h2>
-            <p id="teamText"></p>
-            <p id="levelText"></p>
-            <p id="xpText"></p>
-            <div id="houseDailyCombatsLine" class="muted">
-  ⚔️ Combats aujourd’hui : <b><span id="houseDailyCombats">0</span></b>
-</div>
-
-        </div>
-
-        <!-- BOUTONS ACTIONS -->
-        <div class="actions-panel">
-            <button id="updatesBtn" class="btn-rules">🛠️ MAJ</button>
-            <button id="rulesBtn" class="btn-rules">📜 Règles</button>
-            <button id="teamVillageBtn" style="display:none;">🏘️ Village</button>
-            <button id="upgradeHouseBtn">🏠 Améliorer l'habitation</button>
-            <button id="openCharacterSheetBtn">📝 Fiche</button>
-            <button id="exploreBtn">🌳 Explorer</button>
-            <button id="bestiaryBtn">📖 Bestiaire</button>
-            <button id="inventoryBtn">🎒 Inventaire</button>
-            <button id="logoutBtn">🚪 Déconnexion</button>
-            <button id="adminBtn" style="display:none;">⚔️ Admin</button>
-        </div>
-
-        <!-- POPUP AMÉLIORATION MAISON -->
-        <div class="popup" id="upgradeHousePopup">
-            <h2>Améliorer votre maison</h2>
-            <p id="currentHouse"></p>
-            <p id="nextHouse"></p>
-
-            <div id="houseProgress" style="width:100%; background:#ddd; border-radius:8px; height:12px; margin:10px auto;">
-              <div id="houseProgressFill" style="width:0%; background:#d4af37; height:100%; border-radius:8px;"></div>
-            </div>
-
-            <button id="confirmUpgradeBtn">Améliorer</button>
-            <button id="cancelUpgradeBtn">Annuler</button>
-        </div>
-    </div>
- <!-- BANQUE -->
-    <div class="bank-dashboard">
-        <h3>🏦 Banque</h3>
-        <div class="bank-row gold-row">
-            <span class="bank-label">Sous actuels</span>
-            <span class="bank-value" id="bankGold">0</span>
-        </div>
-        <div class="bank-row house-row">
-            <span class="bank-label">🏠 Dépenses Maison</span>
-            <span class="bank-value" id="bankHouse">0</span>
-        </div>
-        <div class="bank-row village-row">
-            <span class="bank-label">🏘️ Dépenses Village</span>
-            <span class="bank-value" id="bankVillage">0</span>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- POPUPS -->
-<div class="popup" id="adminPopup" style="display:none;">
-  <div class="popup-header">
-    <div class="popup-title">
-      <div class="popup-icon">⚔️</div>
-      <div>
-        <h2 style="margin:0;">Panel Admin</h2>
-        <div class="popup-subtitle">Gestion</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="gold-rule"></div>
-
-  <!-- MENU PRINCIPAL -->
-  <div class="toolbar" style="justify-content:center; gap:10px; flex-wrap:wrap;">
-    <button id="adminPlayersMainBtn" class="btn-primary" type="button">👤 Joueurs</button>
-    <button id="adminMonstersMainBtn" class="btn-primary" type="button">🧟 Créatures</button>
-    <button id="adminBuildingsMainBtn" class="btn-primary" type="button">🏘️ Bâtiments</button>
-    <button id="tabSettingsBtn" type="button">⚙️ Paramètres</button>
-  </div>
-
-  <!-- PANELS -->
-  <div id="tabPlayersPanel" style="display:none; margin-top:10px;">
-    <div id="adminPlayersList"></div>
-  </div>
-
-  <div id="tabMonstersPanel" style="display:none; margin-top:10px;">
-    <p style="margin:0 0 10px; opacity:.8;">Gestion des créatures.</p>
-    <div class="toolbar" style="justify-content:center; gap:10px; flex-wrap:wrap;">
-      <button id="openMonstersAdminBtn" class="btn-primary" type="button">📋 Liste</button>
-      <button id="openAddMonsterBtn" type="button">➕ Créer</button>
-    </div>
-  </div>
-
- 
-
-  <div id="tabSettingsPanel" style="display:none; margin-top:10px;">
-    <h3 style="margin:0 0 8px;">⚙️ Paramètres</h3>
-
-    <h4 style="margin:10px 0 6px;">Limite de combats par jour</h4>
-    <p style="margin-top:0; opacity:.75;">
-      0 = illimité.
-    </p>
-
-    <div class="toolbar" style="justify-content:center; gap:10px; flex-wrap:wrap;">
-      <input id="dailyCombatLimitInput" type="number" min="0" step="1" placeholder="Ex: 20">
-      <button id="saveDailyCombatLimitBtn" class="btn-primary" type="button">💾 Enregistrer</button>
-    </div>
-
-    <p id="dailyCombatLimitInfo" style="opacity:.75; margin-top:8px;"></p>
-  </div>
-
-  <div class="toolbar" style="justify-content:center; margin-top:14px;">
-    <button id="adminClose" type="button">Fermer</button>
-  </div>
-</div>
-
-
-<!-- ===== POPUP ADMIN JOUEUR ===== -->
-<div class="popup" id="adminPlayerEditPopup" style="display:none; max-width:560px;">
-  <h2>👤 Joueur</h2>
-
-  <p><b id="adminEditPlayerName">Nom : ...</b></p>
-  <p id="adminEditLastLogin">Dernière connexion : ...</p>
-  <p id="adminEditTotalXp">XP totale : ...</p>
-  <p id="adminEditGoldTotal">Or total gagné : ...</p>
-  <p id="adminEditGoldCurrent">Or actuel : ...</p>
-
-  <div class="gold-rule"></div>
-
-  <label>Classe</label>
-  <select id="adminEditClassSelect">
-    <option>Guerrier</option>
-    <option>Voleur</option>
-    <option>Mage</option>
-    <option>Nécromancien</option>
-    <option>Archer</option>
-  </select>
-
-  <label style="margin-top:10px;">Équipe</label>
-  <select id="adminEditTeamSelect">
-    <option value="Ordre du Dragon Pourpre ⚔️">Ordre du Dragon Pourpre ⚔️</option>
-    <option value="Confrérie du Serpent Noir 🐍">Confrérie du Serpent Noir 🐍</option>
-  </select>
-
-  <div class="toolbar" style="justify-content:center; gap:10px; margin-top:12px; flex-wrap:wrap;">
-    <button id="adminEditSaveBtn" class="btn-primary" type="button">💾 Enregistrer</button>
-    <button id="adminEditGiveXpBtn" type="button">✨ Donner XP</button>
-      <div class="gold-rule"></div>
-
-  <h3 style="margin:10px 0 8px;">🖼️ Avatar du personnage</h3>
-
-  <img id="adminAvatarPreview"
-       src=""
-       alt="Avatar"
-       style="width:110px; height:110px; object-fit:cover; border-radius:14px; border:2px solid #d4af37; display:none; margin:8px auto;" />
-
-  <input id="adminAvatarFile" type="file" accept="image/*">
-
-  <div class="toolbar" style="justify-content:center; gap:10px; margin-top:10px; flex-wrap:wrap;">
-    <button id="adminAvatarUploadBtn" class="btn-primary" type="button">⬆️ Uploader</button>
-    <button id="adminAvatarRemoveBtn" type="button">🗑️ Retirer</button>
-  </div>
-
-    <button id="adminEditCloseBtn" type="button">⬅ Retour</button>
-  </div>
-</div>
-
-
-<div class="popup" id="adminVillageSection" style="display:none; max-width:900px;">
-  <h2>🏘️ Village – Bâtiments</h2>
-
-
-
-  <h3>🏘️ Village – Bâtiments</h3>
-
-  <h4>➕ Créer un bâtiment</h4>
-
-  <label>
-    Nom du bâtiment<br>
-    <input type="text" id="buildingNameInput">
-  </label><br><br>
-
-  <label>
-    Bonus ATK<br>
-    <input type="number" id="buildingAtkInput" value="0">
-  </label><br><br>
-
-  <label>
-    Bonus DEF<br>
-    <input type="number" id="buildingDefInput" value="0">
-  </label><br><br>
-
-  <label>
-    Coût (or)<br>
-    <input type="number" id="buildingCostInput" value="0">
-  </label><br><br>
-
-  <button id="createBuildingBtn" class="btn-primary" type="button">Créer le bâtiment</button>
-
-
-  <hr>
-
-  <h4>📋 Bâtiments existants</h4>
-  <div id="buildingsList"></div>
-    <div class="toolbar" style="justify-content:center; margin-top:14px;">
-    <button id="adminVillageCloseBtn" type="button">Fermer</button>
-  </div>
-</div>
-
-</div>
-
-
-
-
-
-
-
-
-<!-- ===== POPUP RÈGLES ===== -->
-<div class="popup" id="rulesPopup" style="display:none;">
-  <h2>📜 Règles du jeu</h2>
-
-  <textarea id="rulesContent"
-            placeholder="L’admin peut écrire les règles ici..."
-            style="width:100%; min-height:220px; resize:vertical; padding:10px; border-radius:10px;"></textarea>
-
-  <div style="display:flex; gap:10px; justify-content:center; margin-top:12px; flex-wrap:wrap;">
-    <button id="saveRulesBtn" class="btn-primary">💾 Enregistrer</button>
-    <button id="closeRulesBtn">⬅ Retour</button>
-  </div>
-</div>
-<!-- ===== POPUP MISES À JOUR ===== -->
-<div class="popup" id="updatesPopup" style="display:none;">
-  <h2>🛠️ Mises à jour</h2>
-
-  <textarea id="updatesContent"
-            placeholder="L’admin peut écrire les mises à jour ici..."
-            style="width:100%; min-height:220px; resize:vertical; padding:10px; border-radius:10px;"></textarea>
-
-  <div style="display:flex; gap:10px; justify-content:center; margin-top:12px; flex-wrap:wrap;">
-    <button id="saveUpdatesBtn" class="btn-primary">💾 Enregistrer</button>
-    <button id="closeUpdatesBtn">⬅ Retour</button>
-  </div>
-</div>
-<!-- ===== POPUP VILLAGE D'ÉQUIPE ===== -->
-<div class="popup" id="teamVillagePopup" style="display:none;">
-  <h2 id="teamVillageTitle">🏘️ Village</h2>
-
-  <p id="teamVillageGold">Or du village : ...</p>
-  <p id="teamVillageBonuses">Bonus : ...</p>
-
-  <div class="toolbar" style="justify-content:center;">
-    <button id="donateVillageBtn" class="btn-primary">💰 Donner au village</button>
-    <button id="teamMembersBtn">👥 Équipe</button>
-    <button id="closeTeamVillageBtn">⬅ Retour</button>
-  </div>
-
-  <div class="gold-rule"></div>
-
-  <h3>Bâtiments</h3>
-  <div id="teamVillageBuildings" style="text-align:left;"></div>
-
-  <div id="teamVillageMembersPanel" style="display:none; text-align:left;">
-  <h3>👥 Membres de l’équipe</h3>
-  <div id="teamVillageMembersList"></div>
-
-  <div class="toolbar" style="justify-content:center; margin-top:10px;">
-    <button id="backToBuildingsBtn">⬅ Retour aux bâtiments</button>
-  </div>
-</div>
-
-</div>
-
-
-<!-- ===== POPUP AJOUT CREATURE ===== -->
-<div class="popup" id="addMonsterPopup" style="display:none;">
-    <h2>Ajouter une créature</h2>
-
-    <form id="addMonsterForm">
-
-        <input type="text" id="addMonsterName" placeholder="Nom de la créature">
-        <input type="number" id="addMonsterAttack" placeholder="Attaque">
-        <input type="number" id="addMonsterDefense" placeholder="Défense">
-        <input type="number" id="addMonsterHp" placeholder="Points de vie">
-        <input type="number" id="addMonsterGold" placeholder="Récompense en sous">
-
-        <p>Image de la créature :</p>
-        <input type="file" id="addMonsterImage" accept="image/*">
-
-        <button type="button" id="addMonsterSaveBtn" class="btn-primary">
-    Enregistrer
-</button>
-
-
-        <button type="button" id="addMonsterCancelBtn">
-            Annuler
-        </button>
-
-    </form>
-</div>
-
-
-
-<div class="popup" id="createPopup">
-    <h2>Créer un compte</h2>
-    <input type="email" id="createEmail" placeholder="Adresse email">
-    <input type="password" id="createPassword" placeholder="Mot de passe">
-    <button id="createSubmit">Valider</button>
-    <button id="createBack">Retour</button>
-</div>
-
-<div class="popup" id="loginPopup">
-    <h2>Connexion</h2>
-    <input type="email" id="loginEmail" placeholder="Adresse email">
-    <input type="password" id="loginPassword" placeholder="Mot de passe">
-    <button id="loginSubmit">Se connecter</button>
-    <button id="loginBack">Retour</button>
-</div>
-
-<div class="popup" id="characterPopup">
-    <h2>Viens prendre part à cette aventure</h2>
-    <input type="text" id="characterName" placeholder="Nom du personnage">
-    <select id="characterClass">
-        <option value="">-- Classe --</option>
-        <option>Guerrier</option>
-        <option>Voleur</option>
-        <option>Mage</option>
-        <option>Nécromancien</option>
-        <option>Archer</option>
-        
-    </select>
-    <p>Points de compétence restants : <span id="pointsRestants">10</span></p>
-    <label>Attaque</label><input type="number" id="statAttaque" min="0" value="0">
-    <label>Défense</label><input type="number" id="statDefense" min="0" value="0">
-    <label>Esquive</label><input type="number" id="statEsquive" min="0" value="0">
-    <label>Points de vie</label><input type="number" id="statVie" min="0" value="0">
-    <button id="characterSubmit">Entrer dans le monde</button>
-</div>
-
-<div class="popup" id="monstersAdminPopup" style="display:none; max-width:900px;">
-  <h2>🧟 Gestion des créatures</h2>
-
-  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px;">
-    <button id="monstersCreateBtn">➕ Créer une créature</button>
-    <input id="monsterSearchInput" type="text" placeholder="🔎 Rechercher..." style="flex:1; min-width:220px;">
-    <select id="monsterSortSelect">
-      <option value="name_asc">Nom A→Z</option>
-      <option value="name_desc">Nom Z→A</option>
-      <option value="hp_desc">HP ↓</option>
-      <option value="gold_desc">Or ↓</option>
-      <option value="attack_desc">ATK ↓</option>
-      <option value="defense_desc">DEF ↓</option>
-    </select>
-    <button id="monstersBackToAdminBtn">⬅ Retour Admin</button>
-  </div>
-
-  <div id="monstersList" style="max-height:420px; overflow:auto; text-align:left;"></div>
-
-  <div style="display:flex; justify-content:space-between; margin-top:10px;">
-    <button id="monstersPrevBtn">⬅ Page précédente</button>
-    <button id="monstersNextBtn">Page suivante ➡</button>
-  </div>
-</div>
-
-
-<div class="popup" id="characterSheetPopup">
-    <h2>🛡️ Fiche Personnage 🗡️</h2>
-    <img id="sheetAvatar"
-         src=""
-         alt="Avatar personnage"
-         style="width:120px; height:120px; object-fit:cover; border-radius:16px; border:2px solid #d4af37; display:none; margin:10px auto;" />
-
-    <!-- INFOS GÉNÉRALES -->
-    <p id="sheetClass"></p>
-    <p id="sheetTeam"></p>
-    <p id="sheetLevel"></p>
-    <p id="sheetHouseDefBonus"></p>
-    <p id="sheetDefenseTotal"></p>
-    <p id="sheetVillageBonuses" style="margin-top:6px; opacity:.9;"></p>
-
-
-    <p id="pcText" data-pc="0">Points de Compétence restants : 0</p>
-
-    <!-- STATS + / - -->
-    <div class="stat-row">
-        <span>Attaque: </span>
-        <button class="dec" data-stat="attaque">-</button>
-        <span id="sheetAttaque">0</span>
-        <button class="inc" data-stat="attaque">+</button>
-    </div>
-    <div class="stat-row">
-        <span>Défense: </span>
-        <button class="dec" data-stat="defense">-</button>
-        <span id="sheetDefense">0</span>
-        <button class="inc" data-stat="defense">+</button>
-    </div>
-    <div class="stat-row">
-        <span>Esquive: </span>
-        <button class="dec" data-stat="esquive">-</button>
-        <span id="sheetEsquive">0</span>
-        <button class="inc" data-stat="esquive">+</button>
-    </div>
-    <div class="stat-row">
-        <span>Vie: </span>
-        <button class="dec" data-stat="vie">-</button>
-        <span id="sheetVie">0</span>
-        <button class="inc" data-stat="vie">+</button>
-    </div>
-
-    <button id="saveStatsBtn">Valider</button>
-    <button id="cancelStatsBtn">Annuler</button>
-</div>
-
-
-<div class="overlay" id="overlay"></div>
-
-<div class="popup" id="explorePopup">
-    <h2 id="exploreTitle">🌳 Exploration</h2>
-    <div id="exploreContent" style="text-align:center; font-size:1.1em; margin:10px 0;"></div>
-    <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
-        <button id="exploreNext">⚔️ Combat suivant</button>
-        <button id="exploreClose">❌ Fermer</button>
-    </div>
-</div>
-<div class="popup" id="bestiaryPopup">
-    <div id="bestiaryContent" style="max-height:400px; overflow-y:auto; text-align:left;"></div>
-    <button id="closeBestiary">Fermer</button>
-</div>
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script>
-// ===== CONFIG FIREBASE =====
 const firebaseConfig = {
-  apiKey: "AIzaSyDxSVEnK9stHRQxF-WEUAaVQ5OjM1jqmXU",
-  authDomain: "popoteetdragonv2.firebaseapp.com",
-  projectId: "popoteetdragonv2",
-  storageBucket: "popoteetdragonv2.firebasestorage.app",
-  messagingSenderId: "1012170229310",
-  appId: "1:1012170229310:web:4914b80585158c0c42736f"
+ apiKey: "AIzaSyAJFyX4n6s5ER6_LiS22JtJ01VBvR8YM0g",
+  authDomain: "popotecompagnie-2e79f.firebaseapp.com",
+  projectId: "popotecompagnie-2e79f",
+  storageBucket: "popotecompagnie-2e79f.firebasestorage.app",
+  messagingSenderId: "643014117897",
+  appId: "1:643014117897:web:254fd7aad817ed902086d8"
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.firestore();
-// Fonction utilitaire pour assigner un onclick en toute sécurité
-function safeOnClick(id, callback){
-    const el = document.getElementById(id);
-    if(el) el.onclick = callback;
-}
-function showVillageForCurrentUser(){ /* no-op */ }
+const auth = firebase.auth();
+</script>
 
-let bank = { gold:0, houseSpent:0, villageSpent:0 };
+<script>
+let members = [];
+let consumptions = {};
+const prices = {eau:0.5, soda:0.7, gour:0.5};
+const months = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+let isAdmin = false;
 
-// Fonction pour mettre à jour la banque
-function updateBankDisplay(playerData){
-    const ch = playerData?.character;
+// === AUTHENTIFICATION VIA FIREBASE ===
+function openLogin() { document.getElementById("loginModal").style.display = "flex"; }
+function closeLogin() { document.getElementById("loginModal").style.display = "none"; }
 
-    if(ch){
-        if(typeof ch.gold === "number") bank.gold = ch.gold;
-        if(typeof ch.spentHouse === "number") bank.houseSpent = ch.spentHouse;
-        if(typeof ch.spentVillage === "number") bank.villageSpent = ch.spentVillage;
-    }
+function login() {
+    const email = document.getElementById("pseudo").value.trim();
+    const password = document.getElementById("password").value;
 
-    const goldEl = document.getElementById('bankGold');
-    const houseEl = document.getElementById('bankHouse');
-    const villageEl = document.getElementById('bankVillage');
-
-    if(goldEl) goldEl.textContent = bank.gold;
-    if(houseEl) houseEl.textContent = bank.houseSpent;
-    if(villageEl) villageEl.textContent = bank.villageSpent;
-}
-async function syncPlayersPublic(){
-  if(!currentUser) return;
-
-  const snap = await db.collection("players").doc(currentUser).get();
-  const p = snap.data();
-  if(!p || !p.character) return;
-
-  const name = p.character.name || "";
-  const team = p.character.team || "";
-  const spentVillage = Number(p.character.spentVillage ?? 0);
-  const houseLevel = (typeof p.houseLevel === "number") ? p.houseLevel : 0;
-
-  // si pas de name/team, on n'écrit pas (évite de réécrire du vide)
-  if(!name || !team) return;
-
-  await db.collection("playersPublic").doc(currentUser).set({
-    name,
-    team,
-    spentVillage,
-    houseLevel,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge:true });
+    auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+            isAdmin = true;
+            closeLogin();
+            updateMembersList();
+        })
+        .catch(err => {
+            console.log("Erreur login:", err.code, err.message);
+            // Ne rien faire côté interface si échec
+        });
 }
 
-
-
-// ===== AMÉLIORER MAISON =====
-const upgradeHouseBtn = document.getElementById('upgradeHouseBtn');
-const upgradeHousePopup = document.getElementById('upgradeHousePopup');
-const confirmUpgradeBtn = document.getElementById('confirmUpgradeBtn');
-const cancelUpgradeBtn = document.getElementById('cancelUpgradeBtn');
-const currentHouseP = document.getElementById('currentHouse');
-const nextHouseP = document.getElementById('nextHouse');
-
-const houses = [
-    {name:"Tente", defense:3, cost:0},
-    {name:"Cabane", defense:6, cost:10},
-    {name:"Chaumière", defense:9, cost:20},
-    {name:"Maison", defense:12, cost:40},
-    {name:"Grande Maison", defense:15, cost:80},
-    {name:"Manoir", defense:18, cost:160},
-    {name:"Villa", defense:21, cost:320},
-    {name:"Domaine", defense:24, cost:640},
-    {name:"Palais", defense:27, cost:1280},
-    {name:"Château", defense:30, cost:2560},
-];
-
-// Ouvrir popup
-if(upgradeHouseBtn) upgradeHouseBtn.onclick = async () => {
-    const doc = await db.collection('players').doc(currentUser).get();
-    const player = doc.data();
-    if(!player.houseLevel) player.houseLevel = 0;
-    const currentLevel = player.houseLevel;
-    const nextLevel = currentLevel < houses.length - 1 ? currentLevel + 1 : currentLevel;
-
-    currentHouseP.textContent = `🏠 Maison actuelle : ${houses[currentLevel].name} (Défense: ${houses[currentLevel].defense})`;
-    if(currentLevel === nextLevel){
-        nextHouseP.textContent = "Vous avez déjà le maximum !";
-        confirmUpgradeBtn.style.display = 'none';
-    } else {
-        nextHouseP.textContent = `🛡 Prochaine amélioration : ${houses[nextLevel].name} (Défense: ${houses[nextLevel].defense}, Coût: ${houses[nextLevel].cost} sous)`;
-        confirmUpgradeBtn.style.display = 'inline-block';
-    }
-    overlay.style.display = 'block';
-    upgradeHousePopup.style.display = 'block';
-};
-
-// Fermer popup
-if(cancelUpgradeBtn) cancelUpgradeBtn.onclick = () => {
-    overlay.style.display = 'none';
-    upgradeHousePopup.style.display = 'none';
-};
-
-// Confirmer amélioration
-if(confirmUpgradeBtn) confirmUpgradeBtn.onclick = async () => {
-    const doc = await db.collection('players').doc(currentUser).get();
-    const player = doc.data();
-    if(!player.houseLevel) player.houseLevel = 0;
-    const currentLevel = player.houseLevel;
-    const nextLevel = currentLevel + 1;
-
-    if(nextLevel >= houses.length){
-        alert("Vous avez déjà le niveau maximum !");
-        return;
-    }
-
-    const cost = houses[nextLevel].cost;
-    if(!player.character.gold) player.character.gold = 0;
-    if(!player.character.spentHouse) player.character.spentHouse = 0;
-
-    if(player.character.gold < cost){
-        alert(`Pas assez d'argent ! Il vous faut ${cost} sous.`);
-        return;
-    }
-
-    const newGold = player.character.gold - cost;
-    const newSpentHouse = player.character.spentHouse + cost;
-
-    await db.collection('players').doc(currentUser).update({
-        houseLevel: nextLevel,
-        "character.gold": newGold,
-        "character.spentHouse": newSpentHouse
+function logout() {
+    auth.signOut().then(() => {
+        isAdmin = false;
+        updateMembersList();
     });
-await syncPlayersPublic();
-
-
-    alert(`🏠 Maison améliorée : ${houses[nextLevel].name} !`);
-    overlay.style.display = 'none';
-    upgradeHousePopup.style.display = 'none';
-
-    // Mise à jour banque
-    updateBankDisplay(await db.collection('players').doc(currentUser).get().then(d=>d.data()));
-};
-function renderHouseDailyCombats(playerData){
-  const el = document.getElementById("houseDailyCombats");
-  if(!el) return;
-
-  const today = getTodayKeyParis();
-  const dc = playerData?.character?.dailyCombats;
-
-  const countToday = (dc && dc.date === today) ? (dc.count || 0) : 0;
-  el.textContent = String(countToday);
+}
+// === GESTION FORMULAIRES LOGIN / SIGNUP ===
+function showLoginForm() {
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("signupForm").style.display = "none";
 }
 
-// ===== GARDER L'UTILISATEUR CONNECTÉ APRÈS REFRESH =====
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        // Utilisateur connecté
-        currentUser = user.uid;
-        // ✅ stocke la dernière connexion (si doc joueur existe)
-try {
-  await db.collection("players").doc(currentUser).set({
-    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge: true });
-} catch(e) {
-  console.warn("lastLoginAt update failed", e);
+function showSignupForm() {
+  document.getElementById("signupForm").style.display = "block";
+  document.getElementById("loginForm").style.display = "none";
 }
 
-        await loadGameConfig(); // ✅ charge la limite combats/jour dès la connexion (même après refresh)
-        await ensureDailyCombatCounter(); // ✅ initialise / reset uniquement si nouveau jour
-// init villages + catalogue (une fois à la connexion)
-const isAdmin = user && (user.email === adminEmail);
-
-
-if(isAdmin){
-  await ensureTeamsExist();
-  await ensureDefaultBuildingsCatalog();
+function hideForms() {
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("signupForm").style.display = "none";
 }
 
-
-
-        // Récupère les données du joueur
-        let data = { character:null, level:1, xp:0 };
-
-try {
-    // stop ancien listener si refresh / changement de compte
-if (unsubscribePlayerListener) unsubscribePlayerListener();
-
-// listener temps réel du joueur (banque + UI toujours à jour)
-unsubscribePlayerListener = db.collection('players').doc(currentUser).onSnapshot((doc) => {
-    const data = doc.exists ? doc.data() : { character:null, level:1, xp:0 };
-    // ✅ BONUS VILLAGE : démarre/maj l'écoute selon l'équipe du joueur
-if (data?.character?.team) {
-  startTeamBonusesLive(data.character.team);
-} else {
-  stopTeamBonusesLive();
+// === BASCULER MOT DE PASSE ===
+function togglePassword(id){
+  const input = document.getElementById(id);
+  if(input) input.type = input.type === "password" ? "text" : "password";
 }
 
+// === AUTHENTIFICATION FIREBASE ===
+function signup(){
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
 
+  if(!email || !password){
+    alert("Veuillez remplir tous les champs.");
+    return;
+  }
 
-// --- Banque ---
-updateBankDisplay(data);
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(() => {
+      alert("Compte créé ! Vous pouvez maintenant vous connecter.");
+      hideForms();
+      showLoginForm();
+    })
+    .catch(err => {
+      console.error("Erreur création compte:", err);
+      alert("Erreur création compte : " + err.message);
+    });
+}
 
-// --- Compteur combats du jour (Maison) ---
-renderHouseDailyCombats(data);
+function login(){
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
 
-    // --- UI principale ---
-if(data.character){
+  if(!email || !password){
+    alert("Veuillez remplir tous les champs.");
+    return;
+  }
 
-  // ===== BONUS VILLAGE : démarrer/mettre à jour l'écoute temps réel =====
-  if (data.character && data.character.team) {
-    const teamName = data.character.team;
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      document.getElementById("authPage").style.display = "none";
+      document.getElementById("homePage").style.display = "block";
+      if(typeof updateMembersList === "function") updateMembersList();
+    })
+    .catch(err => {
+      console.error("Erreur connexion:", err);
+      alert("Erreur connexion : " + err.message);
+    });
+}
 
-    // relance uniquement si on change d'équipe
-    if (currentTeamForBonuses !== teamName) {
-      stopTeamBonusesLive();
-      currentTeamForBonuses = teamName;
-      startTeamBonusesLive(teamName);
-    }
-    syncPlayersPublic();
-
+// === Vérifier l'état de connexion au chargement ===
+auth.onAuthStateChanged(user => {
+  if(user){
+    isAdmin = (user.email === "pierre.valentin8@gmail.com");
+    updateMembersList();
   } else {
-    // pas de personnage => pas de bonus
-    stopTeamBonusesLive();
+    isAdmin = false;
   }
-
-  // ✅ IMPORTANT : fermer toutes les popups de création au refresh
-  overlay.style.display = 'none';
-  characterPopup.style.display = 'none';
-
-  villagePage.style.display = 'block';
-  loginPage.style.display = 'none';
-
-
-
-    welcomeText.textContent = `Bienvenue ${data.character.name}, ${data.character.classe}.`;
-    teamText.textContent = `Équipe : ${data.character.team}`;
-    levelText.textContent = `Niveau : ${data.level || 1}`;
-    xpText.textContent = `XP : ${data.xp || 0} / ${10*(data.level || 1)}`;
-    const teamVillageBtn = document.getElementById("teamVillageBtn");
-if(teamVillageBtn){
-  teamVillageBtn.style.display = "inline-block";
-  teamVillageBtn.textContent = data.character.team || "🏘️ Village";
-}
-
-} else {
-    stopTeamBonusesLive(); // ✅ stop bonus village si pas de perso
-    overlay.style.display = 'block';
-    characterPopup.style.display = 'block';
-    const teamVillageBtn = document.getElementById("teamVillageBtn");
-if(teamVillageBtn){
-  teamVillageBtn.style.display = "none";
-}
-
-}
-
-}, (err) => {
-    console.error("Firestore: listener joueur erreur", err);
 });
 
-} catch (e) {
-  console.error("Firestore read failed", e);
-  alert("Erreur Firestore (permissions). Vérifie tes règles Firestore puis recharge.");
-  return;
+
+// Vérifie l'état de connexion au démarrage
+auth.onAuthStateChanged(user => {
+    if (user) {
+        // L'utilisateur est connecté
+        isAdmin = (user.email === "pierre.valentin8@gmail.com");
+
+        // Affiche la page d'accueil et cache la page d'auth
+        document.getElementById("authPage").style.display = "none";
+        document.getElementById("homePage").style.display = "block";
+
+        // Mets à jour la liste des membres
+        updateMembersList();
+    } else {
+        // L'utilisateur n'est pas connecté
+        isAdmin = false;
+        document.getElementById("authPage").style.display = "block";
+        document.getElementById("homePage").style.display = "none";
+    }
+});
+
+
+
+// === NAVIGATION ===
+function goPopote(){ document.getElementById("homePage").style.display="none"; document.getElementById("monthPage").style.display="none"; document.getElementById("popotePage").style.display="block"; updateMembersList(); }
+function goHome(){ document.getElementById("popotePage").style.display="none"; document.getElementById("homePage").style.display="block"; }
+function goDragon(){
+  window.location.href = "https://pierrevalentin8.github.io/dragonv2/";
 }
 
-
-
-
-// --- Chargement de la banque ---
-        // Affichage selon si personnage existant ou non
-        if(data.character){
-            villagePage.style.display = 'block';
-            loginPage.style.display = 'none';
-            welcomeText.textContent = `Bienvenue ${data.character.name}, ${data.character.classe}.`;
-            teamText.textContent = `Équipe : ${data.character.team}`;
-            levelText.textContent = `Niveau : ${data.level || 1}`;
-            xpText.textContent = `XP : ${data.xp || 0} / ${10*(data.level || 1)}`;
-            // ✅ BONUS VILLAGE : lance l'écoute temps réel sur le village de l'équipe
-const teamName = data.character.team || "";
-if (teamName && teamName !== currentTeamForBonuses) {
-  currentTeamForBonuses = teamName;
-  startTeamBonusesLive(teamName);
+// === AJOUT MEMBRE ===
+function openAdd(){ if(!isAdmin) return; document.getElementById("addModal").style.display="flex"; }
+function closeAdd(){ document.getElementById("addModal").style.display="none"; }
+function addMember(){
+  if(!isAdmin) return alert("Seul l'admin peut ajouter un membre !");
+    const nom = document.getElementById("nom").value.trim();
+    const prenom = document.getElementById("prenom").value.trim();
+    if(!nom || !prenom) return;
+    if(members.some(m=>m.nom===nom && m.prenom===prenom)) return;
+    members.push({nom,prenom});
+    months.forEach(m=>{ if(!consumptions[m]) consumptions[m]=[]; consumptions[m].push({nom,prenom,eau:0,soda:0,gour:0,cafe:0}); });
+    saveData();
+    closeAdd();
 }
 
-        } else {
-            overlay.style.display='block';
-            characterPopup.style.display='block';
-            updateBankDisplay();
-
+// === CALCUL TOTAL ANNUEL ===
+function calculateAnnualTotal(member){
+    let total=0;
+    months.forEach(month=>{
+        if(consumptions[month]){
+            let c=consumptions[month].find(cm=>cm.nom===member.nom && cm.prenom===member.prenom);
+            if(c) total += c.eau*prices.eau + c.soda*prices.soda + c.gour*prices.gour + c.cafe;
         }
-// Initialisation des boutons du bestiaire
-document.getElementById('bestiaryBtn').onclick = openBestiary;
-document.getElementById('closeBestiary').onclick = () => {
-    overlay.style.display = 'none';
-    document.getElementById('bestiaryPopup').style.display = 'none';
-};
-
-        // Affiche bouton admin si nécessaire
-        adminBtn.style.display = user.email === adminEmail ? 'inline-block' : 'none';
-
-    } else {
-        // Pas d'utilisateur connecté
-        currentUser = null;
-        villagePage.style.display = 'none';
-        loginPage.style.display = 'block';
-        adminBtn.style.display = 'none';
-        teamText.textContent = '';
-        let monstersCache = [];
-let monstersPageIndex = 0;
-const monstersPageSize = 50;
-
-    }
-});
-function openMonstersAdminPopup() {
-  overlay.style.display = 'block';
-  adminPopup.style.display = 'none';
-  document.getElementById('monstersAdminPopup').style.display = 'block';
-  monstersPageIndex = 0;
-  loadMonstersList();
-}
-
-function backToAdminPopup() {
-  document.getElementById('monstersAdminPopup').style.display = 'none';
-  adminPopup.style.display = 'block';
-}
-
-async function loadMonstersList() {
-  const u = firebase.auth().currentUser;
-  if (!u || u.email !== adminEmail) {
-    alert("Accès admin refusé.");
-    return;
-  }
-
-  const snap = await db.collection("monsters").get();
-  monstersCache = [];
-  snap.forEach(d => monstersCache.push({ id: d.id, ...d.data() }));
-
-  renderMonstersList();
-}
-
-function renderMonstersList() {
-  const list = document.getElementById('monstersList');
-  if (!list) return;
-
-  const q = (document.getElementById('monsterSearchInput').value || "").toLowerCase().trim();
-  const sort = document.getElementById('monsterSortSelect').value;
-
-  let rows = monstersCache.slice();
-
-  // filtre
-  if (q) rows = rows.filter(m => (m.name || "").toLowerCase().includes(q));
-
-  // tri
-  const num = v => (typeof v === "number" ? v : parseInt(v, 10) || 0);
-  rows.sort((a, b) => {
-    if (sort === "name_asc") return (a.name||"").localeCompare(b.name||"");
-    if (sort === "name_desc") return (b.name||"").localeCompare(a.name||"");
-    if (sort === "hp_desc") return num(b.hp) - num(a.hp);
-    if (sort === "gold_desc") return num(b.gold) - num(a.gold);
-    if (sort === "attack_desc") return num(b.attack) - num(a.attack);
-    if (sort === "defense_desc") return num(b.defense) - num(a.defense);
-    return 0;
-  });
-
-  // pagination locale
-  const start = monstersPageIndex * monstersPageSize;
-  const page = rows.slice(start, start + monstersPageSize);
-
-  list.innerHTML = "";
-
-  if (page.length === 0) {
-    list.innerHTML = "<p>Aucune créature.</p>";
-    document.getElementById('monstersPrevBtn').disabled = true;
-    document.getElementById('monstersNextBtn').disabled = true;
-    return;
-  }
-
-  page.forEach(m => {
-    const line = document.createElement("div");
-    line.style.display = "flex";
-    line.style.alignItems = "center";
-    line.style.justifyContent = "space-between";
-    line.style.gap = "10px";
-    line.style.padding = "8px";
-    line.style.borderBottom = "1px solid #ddd";
-
-    const left = document.createElement("div");
-    left.style.flex = "1";
-    left.style.cursor = "pointer";
-    left.innerHTML = `<b>${m.name || "(sans nom)"}</b>
-      <span style="opacity:.8;"> — ATK:${m.attack ?? 0} DEF:${m.defense ?? 0} HP:${m.hp ?? 0} Or:${m.gold ?? 0}</span>`;
-    left.onclick = () => openEditMonster(m); // utilise ta popup existante
-
-    const right = document.createElement("div");
-
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "✏️";
-    editBtn.title = "Modifier";
-    editBtn.onclick = () => openEditMonster(m);
-
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "🗑️";
-    delBtn.title = "Supprimer";
-    delBtn.onclick = async () => {
-      if (!confirm(`Supprimer "${m.name}" ?`)) return;
-      await db.collection("monsters").doc(m.id).delete();
-      monstersCache = monstersCache.filter(x => x.id !== m.id);
-      renderMonstersList();
-    };
-
-    right.appendChild(editBtn);
-    right.appendChild(delBtn);
-
-    line.appendChild(left);
-    line.appendChild(right);
-    list.appendChild(line);
-  });
-
-  document.getElementById('monstersPrevBtn').disabled = monstersPageIndex <= 0;
-  document.getElementById('monstersNextBtn').disabled = (start + monstersPageSize) >= rows.length;
-}
-safeOnClick('openMonstersAdminBtn', openMonstersAdminPopup);
-safeOnClick('monstersBackToAdminBtn', backToAdminPopup);
-
-safeOnClick('monstersCreateBtn', () => { backToAdminPopup(); openAddMonsterPopup(); });
-
-safeOnClick('monstersPrevBtn', () => { monstersPageIndex = Math.max(0, monstersPageIndex - 1); renderMonstersList(); });
-safeOnClick('monstersNextBtn', () => { monstersPageIndex += 1; renderMonstersList(); });
-
-document.getElementById('monsterSearchInput').oninput = () => { monstersPageIndex = 0; renderMonstersList(); };
-document.getElementById('monsterSortSelect').onchange = () => { monstersPageIndex = 0; renderMonstersList(); };
-
-// ===== VARIABLES =====
-let currentUser = null;
-let teamToggle = 0;
-const creationPointsRestants = 10;
-const adminEmail = "pierre.valentin8@gmail.com";
-let unsubscribePlayerListener = null;
-
-async function adminHandler(){
-  // Relance le rendu de l'admin (sans dépendre d'une fonction manquante)
-  if (typeof adminBtn !== "undefined" && typeof adminBtn.onclick === "function") {
-    await adminBtn.onclick();
-  }
-}
-
-// =======================
-// VILLAGES D'EQUIPE (2 teams)
-// =======================
-
-const TEAM_DOC = {
-  "Ordre du Dragon Pourpre ⚔️": "dragon",
-  "L’Ordre du Dragon Pourpre ⚔️": "dragon", // tu utilises parfois cette version
-  "Confrérie du Serpent Noir 🐍": "serpent",
-  "La Confrérie du Serpent Noir 🐍": "serpent"
-};
-
-function getTeamDocId(teamName){
-  return TEAM_DOC[teamName] || null;
-}
-function getTeamNameVariantsFromTeamId(teamId){
-  if(teamId === "dragon"){
-    return ["Ordre du Dragon Pourpre ⚔️", "L’Ordre du Dragon Pourpre ⚔️"];
-  }
-  if(teamId === "serpent"){
-    return ["Confrérie du Serpent Noir 🐍", "La Confrérie du Serpent Noir 🐍"];
-  }
-  return [];
-}
-async function openTeamMembersInVillagePopup(){
-  const popup = document.getElementById("teamVillagePopup");
-  const teamId = popup?.dataset?.teamId;
-  if(!teamId){ alert("TeamId introuvable."); return; }
-
-  const variants = getTeamNameVariantsFromTeamId(teamId);
-  if(!variants.length){ alert("Équipe inconnue."); return; }
-
-  console.log("Query team members on playersPublic, variants=", variants);
-
-  const list = document.getElementById("teamVillageMembersList");
-  if(!list) return;
-
-  list.innerHTML = "<p>Chargement...</p>";
-  showTeamMembersPanel(true);
-
-  try{
-    const snap = await db.collection("playersPublic")
-      .where("team", "in", variants)
-      .get();
-
-    const rows = [];
-    snap.forEach(docSnap => {
-      const p = docSnap.data();
-      if(!p) return;
-
-      const name = p.name || "(sans nom)";
-      const houseLevel = (typeof p.houseLevel === "number") ? p.houseLevel : 0;
-      const safeLevel = Math.max(0, Math.min(houseLevel, houses.length - 1));
-      const houseName = houses[safeLevel]?.name || "—";
-      const spentVillage = Number(p.spentVillage ?? 0);
-
-      rows.push({ name, houseLevel: safeLevel, houseName, spentVillage });
     });
-
-    rows.sort((a,b) => (b.spentVillage - a.spentVillage) || a.name.localeCompare(b.name));
-
-    if(rows.length === 0){
-      list.innerHTML = "<p style='opacity:.8;'>Aucun membre trouvé.</p>";
-      return;
-    }
-
-    list.innerHTML = rows.map(r => `
-      <div style="padding:8px; border-bottom:1px solid #ddd;">
-        <div><b>${r.name}</b></div>
-        <div style="opacity:.9;">🏠 Habitation : <b>${r.houseName}</b> (niveau ${r.houseLevel})</div>
-        <div style="opacity:.9;">💰 Don au village : <b>${r.spentVillage}</b> sous</div>
-      </div>
-    `).join("");
-
-  }catch(e){
-    console.error("openTeamMembersInVillagePopup error =", e);
-    list.innerHTML = "<p>Erreur chargement (voir console F12).</p>";
-  }
+    return total.toFixed(2);
 }
 
 
-function showTeamMembersPanel(show){
-  const buildingsWrap = document.getElementById("teamVillageBuildings");
-  const membersPanel  = document.getElementById("teamVillageMembersPanel");
-  if(!buildingsWrap || !membersPanel) return;
-
-  buildingsWrap.style.display = show ? "none" : "block";
-  membersPanel.style.display  = show ? "block" : "none";
-}
-
-async function ensureTeamsExist(){
-  // crée les docs teams/dragon et teams/serpent si absents
-  const refDragon = db.collection("teams").doc("dragon");
-  const refSerpent = db.collection("teams").doc("serpent");
-
-  const [dSnap, sSnap] = await Promise.all([refDragon.get(), refSerpent.get()]);
-
-  const batch = db.batch();
-  if(!dSnap.exists){
-    batch.set(refDragon, { name: "Ordre du Dragon Pourpre ⚔️", gold: 0, builtIds: [] }, { merge:true });
-  }
-  if(!sSnap.exists){
-    batch.set(refSerpent, { name: "Confrérie du Serpent Noir 🐍", gold: 0, builtIds: [] }, { merge:true });
-  }
-  await batch.commit();
-}
-
-async function ensureDefaultBuildingsCatalog(){
-  // Si la collection est vide, on met 3 bâtiments de base (tu peux changer plus tard)
-  const snap = await db.collection("buildingsCatalog").limit(1).get();
-  if(!snap.empty) return;
-
-  const batch = db.batch();
-  const col = db.collection("buildingsCatalog");
-
-  batch.set(col.doc(), { name:"Forge", atkBonus:2, defBonus:0, cost:80, enabled:true });
-  batch.set(col.doc(), { name:"Palissade", atkBonus:0, defBonus:2, cost:80, enabled:true });
-  batch.set(col.doc(), { name:"Tour de guet", atkBonus:1, defBonus:1, cost:120, enabled:true });
-
-  await batch.commit();
-}
-
-async function loadBuildingsCatalog(){
-  const snap = await db.collection("buildingsCatalog").where("enabled","==",true).get();
-  const buildings = [];
-  snap.forEach(d => buildings.push({ id: d.id, ...d.data() }));
-  // tri simple par coût
-  buildings.sort((a,b) => (a.cost||0) - (b.cost||0));
-  return buildings;
-}
-
-function calcVillageBonuses(buildings, builtIds){
-  const builtSet = new Set(builtIds || []);
-  let atk = 0, def = 0;
-  buildings.forEach(b => {
-    if(builtSet.has(b.id)){
-      atk += (parseInt(b.atkBonus,10) || 0);
-      def += (parseInt(b.defBonus,10) || 0);
-    }
-  });
-  return { atk, def };
-}
-// =======================
-// BONUS VILLAGE (temps réel) -> appliqués à tous les joueurs de l'équipe
-// =======================
-let teamBonuses = { atk: 0, def: 0 };
-let unsubTeamBonusesTeam = null;
-let unsubTeamBonusesBuildings = null;
-let teamBuildingsCache = [];
-let teamDataCache = null;
-let currentTeamForBonuses = null;
-
-function stopTeamBonusesLive(){
-  if (unsubTeamBonusesTeam) unsubTeamBonusesTeam();
-  if (unsubTeamBonusesBuildings) unsubTeamBonusesBuildings();
-  unsubTeamBonusesTeam = null;
-  unsubTeamBonusesBuildings = null;
-  teamBuildingsCache = [];
-  teamDataCache = null;
-  teamBonuses = { atk: 0, def: 0 };
-  currentTeamForBonuses = null;
-}
-
-function startTeamBonusesLive(teamName){
-  if(currentTeamForBonuses === teamName) return; // ✅ évite de relancer 50 fois
-  currentTeamForBonuses = teamName;
-
-  const teamId = getTeamDocId(teamName);
-  if(!teamId){
-    teamBonuses = { atk: 0, def: 0 };
+// === LISTE MEMBRES AVEC DRAG & DROP ===
+let draggedIndex = null;
+// === TRI DES MEMBRES ===
+function openSort(){
+  if(!isAdmin){
+    alert("Seul l'admin peut trier !");
     return;
   }
-
-
-  // stop ancien listener si on change d'équipe
-  if (unsubTeamBonusesTeam) unsubTeamBonusesTeam();
-  if (unsubTeamBonusesBuildings) unsubTeamBonusesBuildings();
-
-  teamBuildingsCache = [];
-  teamDataCache = null;
-
-  function recompute(){
-    const builtIds = (teamDataCache && Array.isArray(teamDataCache.builtIds))
-      ? teamDataCache.builtIds
-      : [];
-
-    teamBonuses = calcVillageBonuses(teamBuildingsCache, builtIds);
-
-    // ✅ si la fiche perso est ouverte, on met à jour l'affichage en live
-if (document.getElementById("characterSheetPopup")?.style.display === "block") {
-
-  
-
-  // ✅ recalcul les stats affichées (attaque/défense/etc) si ta fonction existe
-  if (typeof renderEffectiveStatsFromDatasets === "function") {
-    renderEffectiveStatsFromDatasets();
-  }
+  document.getElementById("sortModal").style.display = "flex";
 }
 
-  }
-
-  // listener catalogue bâtiments (temps réel)
-  unsubTeamBonusesBuildings = db.collection("buildingsCatalog")
-    .where("enabled", "==", true)
-    .onSnapshot((snap) => {
-      teamBuildingsCache = [];
-      snap.forEach(d => teamBuildingsCache.push({ id: d.id, ...d.data() }));
-      recompute();
-    });
-
-  // listener du village d'équipe (temps réel)
-  unsubTeamBonusesTeam = db.collection("teams").doc(teamId)
-    .onSnapshot((doc) => {
-      teamDataCache = doc.exists ? doc.data() : { builtIds: [] };
-      recompute();
-    });
+function closeSort(){
+  document.getElementById("sortModal").style.display = "none";
 }
 
-async function openTeamVillagePopup(){
-  const popup = document.getElementById("teamVillagePopup");
-  const title = document.getElementById("teamVillageTitle");
-  const goldEl = document.getElementById("teamVillageGold");
-  const bonusEl = document.getElementById("teamVillageBonuses");
-  const listEl = document.getElementById("teamVillageBuildings");
+function sortMembers(type){
+  if(!isAdmin) return;
 
-  if(!popup || !title || !goldEl || !bonusEl || !listEl){
-    console.error("openTeamVillagePopup: éléments DOM manquants");
-    alert("Popup village incomplète (voir console).");
-    return;
+  let indices = members.map((m, i) => ({m, i}));
+
+  if(type === "alpha"){
+    indices.sort((a,b)=> (a.m.nom+a.m.prenom).localeCompare(b.m.nom+b.m.prenom));
+  }
+  else if(type === "asc"){
+    indices.sort((a,b)=> calculateAnnualTotal(a.m) - calculateAnnualTotal(b.m));
+  }
+  else if(type === "desc"){
+    indices.sort((a,b)=> calculateAnnualTotal(b.m) - calculateAnnualTotal(a.m));
   }
 
-  // reload joueur
-  const playerSnap = await db.collection("players").doc(currentUser).get();
-  const playerData = playerSnap.exists ? playerSnap.data() : null;
+  // Réordonner members
+  members = indices.map(obj => obj.m);
 
-  if(!playerData || !playerData.character){
-    alert("Aucun personnage.");
-    return;
-  }
-
-  const teamName = playerData.character.team || "";
-  const teamId = getTeamDocId(teamName);
-  if(!teamId){
-    alert("Équipe inconnue.");
-    return;
-  }
-
-  // charge team + catalogue
-  const [teamSnap, buildings] = await Promise.all([
-    db.collection("teams").doc(teamId).get(),
-    loadBuildingsCatalog()
-  ]);
-
-  const teamData = teamSnap.exists ? teamSnap.data() : { gold:0, builtIds:[], builtBy:{} };
-  const villageGold = parseInt(teamData.gold, 10) || 0;
-  const builtIds = Array.isArray(teamData.builtIds) ? teamData.builtIds : [];
-  const builtBy = (teamData.builtBy && typeof teamData.builtBy === "object") ? teamData.builtBy : {};
-
-  // ✅ bonuses DOIT être défini avant usage
-  const bonuses = calcVillageBonuses(buildings, builtIds);
-
-  // header UI
-  title.textContent = `🏘️ Village — ${teamName}`;
-  goldEl.textContent = `Or du village : ${villageGold}`;
-  bonusEl.textContent = `Bonus du village : ⚔️ +${bonuses.atk}  |  🛡️ +${bonuses.def}`;
-
-  // revenir sur vue bâtiments
-  if (typeof showTeamMembersPanel === "function") showTeamMembersPanel(false);
-
-  // render buildings
-  listEl.innerHTML = "";
-  const builtSet = new Set(builtIds);
-
-  buildings.forEach(b => {
-    const row = document.createElement("div");
-    row.className = "building-row" + (builtSet.has(b.id) ? " built" : "");
-
-    const builderName = builtSet.has(b.id) ? (builtBy[b.id] || "?") : "";
-
-    const left = document.createElement("div");
-    left.style.flex = "1";
-    left.innerHTML = `
-      <div class="bname">${b.name || "(sans nom)"}</div>
-      <div class="bmeta">Coût : <b>${b.cost ?? 0}</b> sous</div>
-      <div class="bbadges">
-        <span class="badge">⚔️ +${b.atkBonus ?? 0}</span>
-        <span class="badge">🛡️ +${b.defBonus ?? 0}</span>
-        ${builtSet.has(b.id) ? `<span class="badge">✅ Construit par ${builderName}</span>` : ``}
-      </div>
-    `;
-
-    const actions = document.createElement("div");
-    actions.className = "bactions";
-
-    if(!builtSet.has(b.id)){
-      const btn = document.createElement("button");
-      btn.textContent = "Construire";
-      btn.className = "btn-primary";
-      btn.onclick = async () => {
-        await buildVillageBuilding(teamId, b.id, b.cost || 0);
-        await openTeamVillagePopup(); // refresh
-      };
-      actions.appendChild(btn);
-    } else {
-      const done = document.createElement("button");
-      done.textContent = "Déjà construit";
-      done.disabled = true;
-      actions.appendChild(done);
-    }
-
-    row.appendChild(left);
-    row.appendChild(actions);
-    listEl.appendChild(row);
-  });
-
-  overlay.style.display = "block";
-  popup.style.display = "block";
-  popup.dataset.teamId = teamId;
-}
-
-
-
-async function buildVillageBuilding(teamId, buildingId, cost){
-  if(!currentUser) return;
-
-  await db.runTransaction(async (tx) => {
-    const teamRef = db.collection("teams").doc(teamId);
-    const playerRef = db.collection("players").doc(currentUser);
-
-    const [teamSnap, playerSnap] = await Promise.all([
-      tx.get(teamRef),
-      tx.get(playerRef)
-    ]);
-
-    if(!playerSnap.exists){
-      throw new Error("Joueur introuvable.");
-    }
-
-    const playerData = playerSnap.data();
-    const playerName = playerData?.character?.name || "(inconnu)";
-
-    if(!teamSnap.exists){
-      tx.set(teamRef, { gold:0, builtIds:[], builtBy:{} }, { merge:true });
-    }
-
-    const teamData = teamSnap.exists ? teamSnap.data() : { gold:0, builtIds:[], builtBy:{} };
-    const gold = parseInt(teamData.gold,10) || 0;
-    const builtIds = Array.isArray(teamData.builtIds) ? teamData.builtIds.slice() : [];
-    const builtBy = typeof teamData.builtBy === "object" && teamData.builtBy !== null
-      ? { ...teamData.builtBy }
-      : {};
-
-    if(builtIds.includes(buildingId)) return; // déjà construit
-    if(gold < cost){
-      throw new Error("Pas assez d’or dans le village.");
-    }
-
-    builtIds.push(buildingId);
-    builtBy[buildingId] = playerName; // 👈 on mémorise le constructeur
-
-    tx.update(teamRef, {
-      gold: gold - cost,
-      builtIds: builtIds,
-      builtBy: builtBy
-    });
-  }).catch(e => {
-    alert(e.message || "Erreur construction.");
-    throw e;
-  });
-}
-
-
-async function donateToVillage(teamId){
-  const amount = parseInt(prompt("Combien de sous donner au village ? (irréversible)"), 10);
-  if(!amount || amount <= 0) return;
-
-  await db.runTransaction(async (tx) => {
-    const playerRef = db.collection("players").doc(currentUser);
-    const teamRef = db.collection("teams").doc(teamId);
-
-    const [pSnap, tSnap] = await Promise.all([tx.get(playerRef), tx.get(teamRef)]);
-    const p = pSnap.data();
-
-    if(!p || !p.character) throw new Error("Personnage introuvable.");
-
-    const playerGold = parseInt(p.character.gold, 10) || 0;
-    if(playerGold < amount) throw new Error("Pas assez de sous sur ton personnage.");
-
-    const teamData = tSnap.exists ? tSnap.data() : { gold:0, builtIds:[] };
-    const villageGold = parseInt(teamData.gold, 10) || 0;
-
-    tx.update(playerRef, {
-      "character.gold": playerGold - amount,
-      "character.spentVillage": (parseInt(p.character.spentVillage,10) || 0) + amount
-    });
-
-    if(tSnap.exists){
-      tx.update(teamRef, { gold: villageGold + amount });
-    } else {
-      tx.set(teamRef, { gold: amount, builtIds: [] }, { merge:true });
+  // Réordonner consommations pour chaque mois
+  months.forEach(month=>{
+    if(consumptions[month]){
+      consumptions[month] = indices.map(obj => consumptions[month][obj.i]);
     }
   });
 
-  // ✅ ici amount existe + on est dans une async function
-  await syncPlayersPublic();
-
-
-  alert(`💰 Don effectué : ${amount} sous ajoutés au village.`);
+  saveData();
+  updateMembersList();
+  closeSort();
 }
 
-
-
-// boutons popup village
-safeOnClick("closeTeamVillageBtn", () => {
-  document.getElementById("teamVillagePopup").style.display = "none";
-  overlay.style.display = "none";
-});
-
-safeOnClick("donateVillageBtn", async () => {
-  const popup = document.getElementById("teamVillagePopup");
-  const teamId = popup.dataset.teamId;
-  if(!teamId) return;
-  await donateToVillage(teamId);
-  await openTeamVillagePopup(); // refresh
-});
-
-// bouton sur la page maison
-safeOnClick("teamVillageBtn", openTeamVillagePopup);
-
-safeOnClick("teamMembersBtn", openTeamMembersInVillagePopup);
-
-safeOnClick("backToBuildingsBtn", () => {
-  showTeamMembersPanel(false);
-});
-
-
-// Éléments DOM
-const overlay = document.getElementById('overlay');
-const loginPage = document.getElementById('loginPage');
-const villagePage = document.getElementById('villagePage');
-const createPopup = document.getElementById('createPopup');
-const loginPopup = document.getElementById('loginPopup');
-const characterPopup = document.getElementById('characterPopup');
-
-const statAttaque = document.getElementById('statAttaque');
-const statDefense = document.getElementById('statDefense');
-const statEsquive = document.getElementById('statEsquive');
-const statVie = document.getElementById('statVie');
-const pointsRestantsSpan = document.getElementById('pointsRestants');
-
-const characterSheetPopup = document.getElementById('characterSheetPopup');
-const pcText = document.getElementById('pcText');
-const sheetAttaque = document.getElementById('sheetAttaque');
-const sheetDefense = document.getElementById('sheetDefense');
-const sheetEsquive = document.getElementById('sheetEsquive');
-const sheetVie = document.getElementById('sheetVie');
-const saveStatsBtn = document.getElementById('saveStatsBtn');
-const cancelStatsBtn = document.getElementById('cancelStatsBtn');
-
-function updateSheetPoints(){
-    const remaining = parseInt(pcText.dataset.pc) || 0;
-
-    pcText.textContent = `Points de Compétence restants : ${remaining}`;
-    pcText.style.color = remaining === 0 ? "red" : "#3b2f2f"; // marron foncé
-}
-// ========================
-// FICHE PERSONNAGE (PC)
-// ========================
-
-function renderEffectiveStatsFromDatasets(){
-  const classe = characterSheetPopup.dataset.classe || "";
-  const base = classBaseStats[classe] || { attaque:0, defense:0, esquive:0, vie:0 };
-
-  const a = parseInt(characterSheetPopup.dataset.allocAttaque || "0", 10);
-  const d = parseInt(characterSheetPopup.dataset.allocDefense || "0", 10);
-  const e = parseInt(characterSheetPopup.dataset.allocEsquive || "0", 10);
-  const v = parseInt(characterSheetPopup.dataset.allocVie     || "0", 10);
-
-  const vAtk = Number(teamBonuses?.atk ?? 0);
-  const vDef = Number(teamBonuses?.def ?? 0);
-
-  const houseDef = Number(characterSheetPopup.dataset.houseDefBonus ?? 0);
-
-  sheetAttaque.textContent = a + (base.attaque || 0) + vAtk;
-  sheetDefense.textContent = d + (base.defense || 0) + vDef + houseDef;
-  sheetEsquive.textContent = e + (base.esquive || 0);
-  sheetVie.textContent     = v + (base.vie || 0);
-
-  updateSheetPoints();
-}
-
-
-function openCharacterSheet(playerData){
-
-  const stats = playerData.character.stats || {
-    attaque:0, defense:0, esquive:0, vie:0, pointsRestants:10
-  };
-  // ✅ AVATAR perso (visible si admin a uploadé)
-  const avatarEl = document.getElementById("sheetAvatar");
-  const avatarUrl = playerData?.character?.avatarUrl || "";
-
-  if (avatarEl) {
-    if (avatarUrl) {
-      avatarEl.src = avatarUrl + (avatarUrl.includes("?") ? "&" : "?") + "v=" + Date.now();
-      avatarEl.style.display = "block";
-    } else {
-      avatarEl.src = "";
-      avatarEl.style.display = "none";
-    }
-  }
-
-  const classe = playerData.character.classe;
-  const base = classBaseStats[classe] || { attaque:0, defense:0, esquive:0, vie:0 };
-
-  // PC
-  const used = (stats.attaque||0)+(stats.defense||0)+(stats.esquive||0)+(stats.vie||0);
-  const totalPc = used + (stats.pointsRestants||0);
-
-  pcText.dataset.totalPc = totalPc;
-  pcText.dataset.pc = stats.pointsRestants || 0;
-
-  // stocke classe + points ATTRIBUÉS (sans bonus)
-  characterSheetPopup.dataset.classe = classe;
-  characterSheetPopup.dataset.allocAttaque = stats.attaque || 0;
-  characterSheetPopup.dataset.allocDefense = stats.defense || 0;
-  characterSheetPopup.dataset.allocEsquive = stats.esquive || 0;
-  characterSheetPopup.dataset.allocVie     = stats.vie || 0;
-
-  document.getElementById('sheetClass').textContent =
-    `Classe : ${classe} (Bonus → ATK:${base.attaque} DEF:${base.defense} ESG:${base.esquive} VIE:${base.vie})`;
-
-  document.getElementById('sheetTeam').textContent =
-    `Équipe : ${playerData.character.team}`;
-
-  document.getElementById('sheetLevel').textContent =
-    `Niveau : ${playerData.level || 1}`;
-// ===== BONUS DEF MAISON (affichage seulement) =====
-const houseLevel = (typeof playerData.houseLevel === "number") ? playerData.houseLevel : 0;
-const safeHouseLevel = Math.max(0, Math.min(houseLevel, houses.length - 1));
-const houseBonusDef = houses[safeHouseLevel]?.defense || 0;
-characterSheetPopup.dataset.houseDefBonus = houseBonusDef;
-
-const elHouse = document.getElementById("sheetHouseDefBonus");
-if(elHouse){
-  elHouse.textContent = `🏠 Défense habitation : +${houseBonusDef}`;
-}
-// ✅ BONUS VILLAGE (affichage fiche)
-const elVillage = document.getElementById("sheetVillageBonuses");
-if(elVillage){
-  const vAtk = Number(teamBonuses?.atk ?? 0);
-  const vDef = Number(teamBonuses?.def ?? 0);
-  elVillage.textContent = `🏘️ Bonus village : ⚔️ +${vAtk} | 🛡️ +${vDef}`;
-}
-
-  renderEffectiveStatsFromDatasets();
-  overlay.style.display = 'block';
-  characterSheetPopup.style.display = 'block';
-  
-}
-// ✅ BONUS VILLAGE (affichage)
-const elVillage = document.getElementById("sheetVillageBonuses");
-if(elVillage){
-  const vAtk = Number(teamBonuses?.atk ?? 0);
-  const vDef = Number(teamBonuses?.def ?? 0);
-  elVillage.textContent = `🏘️ Bonus village : ⚔️ +${vAtk} | 🛡️ +${vDef}`;
-}
-
-// ========================
-// Gestion + / - des stats
-// ========================
-
-
-
-document.querySelectorAll('.stat-row .inc').forEach(btn => {
-  btn.onclick = () => {
-    const stat = btn.dataset.stat;
-    let remaining = parseInt(pcText.dataset.pc || "0", 10);
-    if (remaining <= 0) return;
-
-    const key =
-      stat === "attaque" ? "allocAttaque" :
-      stat === "defense" ? "allocDefense" :
-      stat === "esquive" ? "allocEsquive" : "allocVie";
-
-    let val = parseInt(characterSheetPopup.dataset[key] || "0", 10);
-    characterSheetPopup.dataset[key] = val + 1;
-
-    pcText.dataset.pc = remaining - 1;
-
-    renderEffectiveStatsFromDatasets();
-  };
-});
-
-
-
-
-document.querySelectorAll('.stat-row .dec').forEach(btn => {
-  btn.onclick = () => {
-    const stat = btn.dataset.stat;
-
-    const key =
-      stat === "attaque" ? "allocAttaque" :
-      stat === "defense" ? "allocDefense" :
-      stat === "esquive" ? "allocEsquive" :
-      stat === "vie"     ? "allocVie" :
-      null;
-
-    if(!key) return;
-
-    // on diminue le point ATTRIBUÉ (pas le bonus)
-    let val = parseInt(characterSheetPopup.dataset[key] || "0", 10);
-    if (val <= 0) return; // impossible de descendre sous 0 attribué
-
-    characterSheetPopup.dataset[key] = val - 1;
-
-    // on rend 1 PC
-    let remaining = parseInt(pcText.dataset.pc || "0", 10);
-    pcText.dataset.pc = remaining + 1;
-
-    // rafraîchit l'affichage (attribué + bonus)
-    renderEffectiveStatsFromDatasets();
-  };
-});
-
-
-
-
-
-
-
-
-// ========================
-// Cancel bouton
-// ========================
-cancelStatsBtn.onclick = () => {
-    overlay.style.display='none';
-    characterSheetPopup.style.display='none';
-};
-
-// ========================
-// Save stats
-// ========================
-safeOnClick('saveStatsBtn', async () => {
-  const attaque = parseInt(characterSheetPopup.dataset.allocAttaque || "0", 10);
-  const defense = parseInt(characterSheetPopup.dataset.allocDefense || "0", 10);
-  const esquive = parseInt(characterSheetPopup.dataset.allocEsquive || "0", 10);
-  const vie     = parseInt(characterSheetPopup.dataset.allocVie     || "0", 10);
-
-  const remaining = parseInt(pcText.dataset.pc || "0", 10);
-
-  await db.collection('players').doc(currentUser).update({
-    "character.stats.attaque": attaque,
-    "character.stats.defense": defense,
-    "character.stats.esquive": esquive,
-    "character.stats.vie": vie,
-    "character.stats.pointsRestants": remaining
-  });
-
-  alert("Stats mises à jour !");
-  overlay.style.display = 'none';
-  characterSheetPopup.style.display = 'none';
-});
-
-
-
-const adminBtn = document.getElementById('adminBtn');
-const adminPopup = document.getElementById('adminPopup');
-const adminClose = document.getElementById('adminClose');
-const adminPlayersList = document.getElementById('adminPlayersList');
-const adminMonstersList = document.getElementById('adminMonstersList');
-// ===== RÈGLES DU JEU (LECTURE) =====
-async function openRulesPopup() {
-  const popup = document.getElementById('rulesPopup');
-  const textarea = document.getElementById('rulesContent');
-  const saveBtn = document.getElementById('saveRulesBtn');
-
-  // charge depuis Firestore
-  const doc = await db.collection("config").doc("rules").get();
-  textarea.value = doc.exists ? (doc.data().content || "") : "";
-
-  // admin ou non
-  const user = firebase.auth().currentUser;
-  const isAdmin = user && user.email === adminEmail;
-
-  textarea.disabled = !isAdmin;
-  saveBtn.style.display = isAdmin ? "inline-block" : "none";
-
-  overlay.style.display = "block";
-  popup.style.display = "block";
-}
-// ✅ revenir par défaut sur la vue bâtiments
-showTeamMembersPanel(false);
-
-// ===== BOUTON "RÈGLES" =====
-safeOnClick('rulesBtn', () => {
-  openRulesPopup();
-});
-
-// ===== RÈGLES DU JEU (SAUVEGARDE ADMIN) =====
-safeOnClick('saveRulesBtn', async () => {
-  const user = firebase.auth().currentUser;
-  if (!user || user.email !== adminEmail) {
-    alert("Accès refusé.");
-    return;
-  }
-
-  const content = document.getElementById('rulesContent').value;
-
-  await db.collection("config").doc("rules").set({
-    content: content
-  });
-
-  alert("📜 Règles enregistrées !");
-});
-// ===== MAJ (LECTURE) =====
-async function openUpdatesPopup() {
-  const popup = document.getElementById('updatesPopup');
-  const textarea = document.getElementById('updatesContent');
-  const saveBtn = document.getElementById('saveUpdatesBtn');
-
-  // charge depuis Firestore
-  const doc = await db.collection("config").doc("updates").get();
-  textarea.value = doc.exists ? (doc.data().content || "") : "";
-
-  // admin ou non
-  const user = firebase.auth().currentUser;
-  const isAdmin = user && user.email === adminEmail;
-
-  textarea.disabled = !isAdmin;
-  saveBtn.style.display = isAdmin ? "inline-block" : "none";
-
-  overlay.style.display = "block";
-  popup.style.display = "block";
-}
-
-// ===== BOUTON "MAJ" =====
-safeOnClick('updatesBtn', () => {
-  openUpdatesPopup();
-});
-
-// ===== MAJ (SAUVEGARDE ADMIN) =====
-safeOnClick('saveUpdatesBtn', async () => {
-  const user = firebase.auth().currentUser;
-  if (!user || user.email !== adminEmail) {
-    alert("Accès refusé.");
-    return;
-  }
-
-  const content = document.getElementById('updatesContent').value;
-
-  await db.collection("config").doc("updates").set({
-    content: content
-  });
-
-  alert("🛠️ Mises à jour enregistrées !");
-});
-
-// ===== MAJ (FERMER) =====
-safeOnClick('closeUpdatesBtn', () => {
-  document.getElementById('updatesPopup').style.display = 'none';
-  overlay.style.display = 'none';
-});
-
-// ===== FONCTIONS POPUPS =====
-function closeAllPopups(){
-    overlay.style.display = 'none';
-    createPopup.style.display = 'none';
-    loginPopup.style.display = 'none';
-    characterPopup.style.display = 'none';
-    characterSheetPopup.style.display = 'none';
-    adminPopup.style.display = 'none';
-    document.getElementById('rulesPopup').style.display = 'none';
-    document.getElementById('updatesPopup').style.display = 'none';
-
-
-
-    // ✅ ajout : popup créature
-    const add = document.getElementById('addMonsterPopup');
-    if(add) add.style.display = 'none';
-        const edit = document.getElementById('adminPlayerEditPopup');
-    if(edit) edit.style.display = 'none';
-
-}
-
-function showPopup(id){
-    overlay.style.display = 'block';
-    document.getElementById(id).style.display = 'block';
-}
-
-
-
-
-
-
-
-sheetAttaque.oninput = sheetDefense.oninput = sheetEsquive.oninput = sheetVie.oninput = updateSheetPoints;
-
-cancelStatsBtn.onclick = () => { overlay.style.display='none'; characterSheetPopup.style.display='none'; };
-
-
-
-
-
-
-
-// ===== ADMIN =====
-adminBtn.onclick = async () => {
-  overlay.style.display = 'block';
-  adminPopup.style.display = 'block';
-
-  // ✅ on ouvre l'onglet joueurs
-  setAdminTab("players");
-
-  // ✅ liste simple par équipe (TON nouveau rendu)
-startAdminPlayersLive();
-
-
-  // (optionnel) si tu veux garder le rendu adminMonstersList/table quelque part, sinon tu peux enlever
-  // await renderAdminMonsters();
-
-  adminClose.onclick = () => {
-  stopAdminPlayersLive(); // ✅ stop le temps réel
-  overlay.style.display = 'none';
-  adminPopup.style.display = 'none';
-};
-
-};
-
-function setAdminTab(tab){
-  const pBtn = document.getElementById('tabPlayersBtn');
-  const mBtn = document.getElementById('tabMonstersBtn');
-  const vBtn = document.getElementById('tabVillageBtn');
-  const sBtn = document.getElementById('tabSettingsBtn');
-
-  const pPanel = document.getElementById('tabPlayersPanel');
-  const mPanel = document.getElementById('tabMonstersPanel');
-  const vPanel = document.getElementById('adminVillageSection');
-  const sPanel = document.getElementById('tabSettingsPanel');
-
-  if(!pPanel || !mPanel || !vPanel || !sPanel) return;
-
-  // afficher le bon panel
-pPanel.style.display = (tab === "players")  ? "block" : "none";
-mPanel.style.display = (tab === "monsters") ? "block" : "none";
-vPanel.style.display = "none"; // le village s’ouvre en popup séparée
-sPanel.style.display = (tab === "settings") ? "block" : "none";
-
-
-  // style boutons (si bouton absent, pas grave)
-  const setBtnState = (btn, active) => {
-    if(!btn) return;
-    btn.classList.toggle("tab-active", active);
-    btn.classList.toggle("btn-primary", active);
-  };
-
-  setBtnState(pBtn, tab === "players");
-  setBtnState(mBtn, tab === "monsters");
-  setBtnState(vBtn, tab === "village");
-  setBtnState(sBtn, tab === "settings");
-}
-
-// =======================
-// ADMIN - Boutons principaux (UI simple)
-// =======================
-safeOnClick('adminPlayersMainBtn', () => {
-  setAdminTab("players");
-  startAdminPlayersLive(); // ✅ relance l'écoute à chaque retour sur l'onglet
-});
-
-safeOnClick('adminMonstersMainBtn', () => setAdminTab("monsters"));
-safeOnClick('adminBuildingsMainBtn', () => {
-  // ouvre la popup bâtiments
-  adminPopup.style.display = "none";
-  document.getElementById("adminVillageSection").style.display = "block";
-  overlay.style.display = "block";
-});
-safeOnClick("adminVillageCloseBtn", () => {
-  document.getElementById("adminVillageSection").style.display = "none";
-  adminPopup.style.display = "block";
-  overlay.style.display = "block";
-});
-
-
-safeOnClick('tabPlayersBtn', () => setAdminTab("players"));
-safeOnClick('tabMonstersBtn', () => setAdminTab("monsters"));
-safeOnClick('tabVillageBtn', () => setAdminTab("village"));
-safeOnClick('tabSettingsBtn', async () => {
-  setAdminTab("settings");
-  await loadGameConfig();
-});
-
-
-adminClose.onclick = () => {
-  stopAdminPlayersLive();
-  overlay.style.display='none';
-  adminPopup.style.display='none';
-};
-
-
-
-// ===== FONCTION XP =====
-async function giveXpToPlayer(uid,player,xpGained){
-    if(!player.character){ alert("Pas de personnage !"); return; }
-    if(!player.character.stats) player.character.stats={attaque:0,defense:0,esquive:0,vie:0,pointsRestants:0};
-    let xp=player.xp||0;
-    let level=player.level||1;
-    let stats=player.character.stats;
-    xp+=xpGained;
-    let leveledUp=false;
-    let nextLevelXp=10*level;
-    while(xp>=nextLevelXp){
-        xp-=nextLevelXp;
-        level++;
-        stats.pointsRestants+=1;
-        leveledUp=true;
-        nextLevelXp=10*level;
-    }
-    await db.collection('players').doc(uid).update({xp:xp,level:level,"character.stats":stats});
-    if(leveledUp) alert(`🎉 ${player.character.name} monte niveau ${level} ! (+1 PC)`);
-}
-
-// ===== POPUPS BOUTONS =====
-safeOnClick('createBtn', () => { overlay.style.display='block'; createPopup.style.display='block'; });
-safeOnClick('loginBtn', () => { overlay.style.display='block'; loginPopup.style.display='block'; });
-safeOnClick('createBack', closeAllPopups);
-safeOnClick('loginBack', closeAllPopups);
-
-// ✅ Fermer seulement si on clique vraiment SUR l'overlay (pas dans une popup)
-overlay.onclick = (e) => {
-  if (e.target === overlay) closeAllPopups();
-};
-
-// ✅ Empêche les clics dans les popups de remonter vers l'overlay
-document.querySelectorAll('.popup').forEach(p => {
-  p.addEventListener('click', (e) => e.stopPropagation());
-});
-
-
-// ===== CREATION COMPTE =====
-safeOnClick('createSubmit', async () => {
-    const email = createEmail.value;
-    const password = createPassword.value;
-    if(email && password){
-        try {
-            const userCredential = await auth.createUserWithEmailAndPassword(email,password);
-            await db.collection('players').doc(userCredential.user.uid).set({character:null});
-            alert("Compte créé !");
-            closeAllPopups();
-        } catch(e) {
-            alert(e.message);
-        }
-    }
-});
-
-safeOnClick('loginSubmit', async () => {
-    const email = loginEmail.value;
-    const password = loginPassword.value;
-    try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        currentUser = userCredential.user.uid;
-        const doc = await db.collection('players').doc(currentUser).get();
-        if(!doc.exists) await db.collection('players').doc(currentUser).set({character:null,level:1,xp:0});
-        closeAllPopups();
-    } catch(e) {
-        alert("Erreur : " + e.message);
-    }
-});
-
-
-// ===== CONNEXION =====
-document.getElementById('loginSubmit').onclick = async () => {
-    const email = loginEmail.value;
-    const password = loginPassword.value;
-    try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        currentUser = userCredential.user.uid;
-
-        // Crée le joueur si inexistant
-        const doc = await db.collection('players').doc(currentUser).get();
-        if(!doc.exists) await db.collection('players').doc(currentUser).set({character:null,level:1,xp:0});
-
-        closeAllPopups(); // ferme la popup login
-
-        // Le reste (affichage village, fiche personnage, admin) est géré automatiquement par onAuthStateChanged
-    } catch(e) {
-        alert("Erreur : " + e.message);
-    }
-};
-
-
-// ===== CREATION PERSONNAGE =====
-safeOnClick('characterSubmit', async () => {
-    const name = characterName.value;
-    const classe = characterClass.value;
-
-    const attaque = parseInt(statAttaque.value) || 0;
-    const defense = parseInt(statDefense.value) || 0;
-    const esquive = parseInt(statEsquive.value) || 0;
-    const vie = parseInt(statVie.value) || 0;
-
-    const totalUsed = attaque + defense + esquive + vie;
-    if(totalUsed > creationPointsRestants){
-        alert("Vous avez dépassé vos 10 points !");
-        return;
-    }
-
-    const team = teamToggle === 0
-        ? 'L’Ordre du Dragon Pourpre ⚔️'
-        : 'La Confrérie du Serpent Noir 🐍';
-    teamToggle = teamToggle === 0 ? 1 : 0;
-
-    const finalStats = { attaque, defense, esquive, vie, pointsRestants: creationPointsRestants - totalUsed };
-
-  await db.collection('players').doc(currentUser).set({
-    character: { name, classe, team, stats: finalStats, gold:0 },
-    houseLevel: 0,
-    level:1, xp:0
-  }, { merge: true });
-
-  // ✅ PUBLIC: visible par tout le monde connecté
-  await db.collection("playersPublic").doc(currentUser).set({
-    name: name,
-    team: team,
-    houseLevel: 0,
-    spentVillage: 0,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge: true });
-
-  closeAllPopups();
-});
-async function adminBackfillPlayersPublic(){
-  const u = firebase.auth().currentUser;
-  if(!u || u.email !== adminEmail){
-    alert("Admin seulement");
-    return;
-  }
-
-  const snap = await db.collection("players").get();
-  const docs = snap.docs;
-
-  let batch = db.batch();
-  let count = 0;
-
-  for (const docSnap of docs) {
-    const p = docSnap.data();
-    const uid = docSnap.id;
-    if(!p || !p.character) continue;
-
-    const name = p.character.name || "";
-    const team = p.character.team || "";
-    const spentVillage = Number(p.character.spentVillage ?? 0);
-    const houseLevel = (typeof p.houseLevel === "number") ? p.houseLevel : 0;
-
-    // n'écrit pas des docs vides
-    if(!name || !team) continue;
-
-    batch.set(db.collection("playersPublic").doc(uid), {
-      name, team, houseLevel, spentVillage,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge:true });
-
-    count++;
-
-    // commit tous les 450 pour éviter la limite 500
-    if(count % 450 === 0){
-      await batch.commit();
-      batch = db.batch();
-    }
-  }
-
-  await batch.commit();
-  alert(`✅ playersPublic rempli (écrits: ${count}).`);
-}
-
-
-
-
-
-// ===== DECONNEXION =====
-safeOnClick('logoutBtn', async () => {
-    await auth.signOut();
-    currentUser = null;
-    stopTeamBonusesLive(); // ✅ stop listeners bonus village
-    villagePage.style.display = 'none';
-    loginPage.style.display = 'block';
-    adminBtn.style.display = 'none';
-    teamText.textContent = '';
-});
-
-function getStatTotal(statName, playerStats, classBase) {
-    return (playerStats[statName] || 0) + (classBase[statName] || 0);
-}
-
-
-// ===== OUVRIR FICHE PERSONNAGE =====
-safeOnClick('openCharacterSheetBtn', async () => {
-    const playerDoc = await db.collection('players').doc(currentUser).get();
-    const data = playerDoc.data();
-    if(!data.character){
-        alert("Aucun personnage créé.");
-        return;
-    }
-    openCharacterSheet(data);
-});
-
-
-
-// Liste des ennemis PVE
-const enemies = [
-  { name: "Lapin", hp: 3, attack: 1, defense: 0, gold: 1 },
-  { name: "Rat", hp: 4, attack: 2, defense: 1, gold: 2 },
-  { name: "Corbeau", hp: 5, attack: 3, defense: 0, gold: 3 },
-  { name: "Gobelin", hp: 8, attack: 4, defense: 2, gold: 5 },
-  { name: "Kobold", hp: 10, attack: 5, defense: 3, gold: 6 },
-  { name: "Loup", hp: 12, attack: 6, defense: 4, gold: 8 },
-  { name: "Araignée géante", hp: 14, attack: 5, defense: 5, gold: 10 },
-  { name: "Orc", hp: 18, attack: 8, defense: 6, gold: 12 },
-  { name: "Troll", hp: 25, attack: 10, defense: 8, gold: 18 },
-  { name: "Squelette", hp: 15, attack: 7, defense: 5, gold: 10 },
-  { name: "Zombie", hp: 20, attack: 6, defense: 7, gold: 12 },
-  { name: "Ogre", hp: 30, attack: 12, defense: 10, gold: 20 },
-  { name: "Sorcière", hp: 18, attack: 14, defense: 5, gold: 25 },
-  { name: "Worg", hp: 22, attack: 11, defense: 7, gold: 18 },
-  { name: "Minotaure", hp: 35, attack: 15, defense: 12, gold: 30 },
-  { name: "Liche", hp: 28, attack: 18, defense: 8, gold: 40 },
-  { name: "Gargouille", hp: 32, attack: 12, defense: 15, gold: 35 },
-  { name: "Dragonnet", hp: 40, attack: 20, defense: 12, gold: 50 },
-  { name: "Wyverne", hp: 45, attack: 22, defense: 15, gold: 55 },
-  { name: "Hydre", hp: 50, attack: 18, defense: 20, gold: 60 },
-  { name: "Vampire", hp: 38, attack: 25, defense: 10, gold: 70 },
-  { name: "Démon mineur", hp: 42, attack: 23, defense: 15, gold: 65 },
-  { name: "Elementaire de feu", hp: 48, attack: 22, defense: 18, gold: 80 },
-  { name: "Elementaire d’eau", hp: 50, attack: 18, defense: 20, gold: 75 },
-  { name: "Elementaire de terre", hp: 55, attack: 20, defense: 22, gold: 90 },
-  { name: "Elementaire d’air", hp: 45, attack: 25, defense: 15, gold: 85 },
-  { name: "Dragon", hp: 60, attack: 28, defense: 20, gold: 100 },
-  { name: "Chimère", hp: 55, attack: 30, defense: 18, gold: 95 },
-  { name: "Succube", hp: 40, attack: 32, defense: 12, gold: 80 },
-  { name: "Harpie", hp: 38, attack: 28, defense: 10, gold: 70 },
-  { name: "Griffon", hp: 50, attack: 32, defense: 20, gold: 90 },
-  { name: "Kraken", hp: 80, attack: 35, defense: 25, gold: 150 },
-  { name: "Manticore", hp: 60, attack: 38, defense: 22, gold: 120 },
-  { name: "Sphinx", hp: 55, attack: 30, defense: 28, gold: 110 },
-  { name: "Démon majeur", hp: 65, attack: 40, defense: 25, gold: 130 },
-  { name: "Dragon adulte", hp: 70, attack: 45, defense: 35, gold: 150 },
-  { name: "Titan", hp: 85, attack: 50, defense: 40, gold: 200 },
-  { name: "Ancien Troll", hp: 75, attack: 48, defense: 38, gold: 180 },
-  { name: "Dragon noir", hp: 90, attack: 55, defense: 45, gold: 220 },
-  { name: "Dragon rouge", hp: 95, attack: 60, defense: 50, gold: 250 },
-  { name: "Balrog", hp: 100, attack: 70, defense: 60, gold: 300 },
-];
-const classBaseStats = {
-    "Guerrier": { attaque: 3, defense: 2, esquive: 0, vie: 2 },
-    "Voleur": { attaque: 1, defense: 1, esquive: 3, vie: 2 },
-    "Mage": { attaque: 4, defense: 0, esquive: 1, vie: 1 },
-    "Nécromancien": { attaque: 2, defense: 1, esquive: 1, vie: 3 },
-    "Archer": { attaque: 2, defense: 1, esquive: 2, vie: 2 }
-};
-
-async function explore() {
-
-    if(!currentUser){
-        alert("Connecte-toi d'abord !");
-        return;
-    }
-
-    const doc = await db.collection('players').doc(currentUser).get();
-    const data = doc.data();
-// ===== Limite combats / jour =====
-const limit = gameConfig.dailyCombatLimit || 0;
-
-if(limit > 0){
-  const today = getTodayKeyParis();
-  const dc = data.character.dailyCombats || { date: today, count: 0 };
-  const countToday = (dc.date === today) ? (dc.count || 0) : 0;
-
-  if(countToday >= limit){
-    alert(`Limite atteinte : ${limit} combats aujourd’hui.`);
-    return;
-  }
-
-  await db.collection('players').doc(currentUser).update({
-    "character.dailyCombats": { date: today, count: countToday + 1 }
-  });
-
-  data.character.dailyCombats = { date: today, count: countToday + 1 };
-}
-
-    if(!data.character){
-        alert("Aucun personnage !");
-        return;
-    }
-
-    const stats = data.character.stats;
-
-    const classe = data.character.classe;
-    const base = classBaseStats[classe] || {attaque:0, defense:0, esquive:0, vie:0};
-    
-// ===== BONUS DEFENSE DE L'HABITATION =====
-const houseLevel = typeof data.houseLevel === "number" ? data.houseLevel : 0;
-const safeHouseLevel = Math.max(0, Math.min(houseLevel, houses.length - 1));
-const houseBonusDef = houses[safeHouseLevel]?.defense || 0;
-
-// ===== STATS JOUEUR POUR LE COMBAT (avec bonus maison + bonus village) =====
-const vAtk = Number(teamBonuses?.atk ?? 0);
-const vDef = Number(teamBonuses?.def ?? 0);
-
-const playerStats = {
-  hp: (stats.vie || 0) + (base.vie || 0),
-  attack: (stats.attaque || 0) + (base.attaque || 0) + vAtk,
-  defense: (stats.defense || 0) + (base.defense || 0) + houseBonusDef + vDef,
-  dodge: (stats.esquive || 0) + (base.esquive || 0)
-};
-
-
-
-
-
-    const snapshot = await db.collection('monsters').get();
-
-const monsters = [];
-snapshot.forEach(doc => monsters.push(doc.data()));
-
-if(monsters.length === 0){
-    alert("Aucune créature disponible !");
-    return;
-}
-
-const idx = Math.floor(Math.random() * monsters.length);
-const monster = monsters[idx];
-
-// Enregistrement du monstre rencontré pour le bestiaire
-let encountered = data.encountered || [];
-
-if (!encountered.includes(monster.name)) {
-    encountered.push(monster.name);
-
-    await db.collection('players').doc(currentUser).update({
-        encountered: encountered
-    });
-}
-
-    const playerPower = playerStats.hp + playerStats.attack + playerStats.defense;
-    const monsterPower = monster.hp + monster.attack + monster.defense;
-
-    const contentDiv = document.getElementById('exploreContent');
-
-let monsterEmoji = '👾';
-if(monster.name.toLowerCase().includes('lapin')) monsterEmoji='🐇';
-else if(monster.name.toLowerCase().includes('rat')) monsterEmoji='🐀';
-else if(monster.name.toLowerCase().includes('dragon')) monsterEmoji='🐉';
-else if(monster.name.toLowerCase().includes('balrog')) monsterEmoji='🔥';
-
-const pHP = playerStats.hp;
-const pATK = playerStats.attack;
-const pDEF = playerStats.defense;
-
-const mHP = monster.hp ?? 0;
-const mATK = monster.attack ?? 0;
-const mDEF = monster.defense ?? 0;
-
-// log + récompense
-let logText = "";
-let isWin = (playerPower >= monsterPower);
-
-if(isWin){
-  logText = `🎉 <b>Victoire !</b> Tu récupères <b>${monster.gold ?? 0} sous</b>.`;
-} else {
-  logText = `💀 <b>Défaite...</b> Tu bats en retraite sans butin.`;
-}
-// ===== GAIN D'OR =====
-let currentGold = data.character.gold || 0;
-const gainedGold = isWin ? (monster.gold || 0) : 0;
-const newGold = currentGold + gainedGold;
-
-// Gestion du bestiaire
-let metMonsters = data.character.metMonsters || [];
-if(!metMonsters.includes(monster.name)){
-    metMonsters.push(monster.name);
-}
-
-// 🔥 UPDATE FIRESTORE
-const gained = Number(gainedGold) || 0;
-
-const updateData = {
-  "character.gold": newGold,
-  "character.metMonsters": metMonsters
-};
-
-if (gained > 0) {
-  updateData["character.totalGoldEarned"] = firebase.firestore.FieldValue.increment(gained);
-  console.log("✅ totalGoldEarned +", gained);
-} else {
-  console.log("ℹ️ pas de gain -> totalGoldEarned inchangé");
-}
-
-await db.collection('players').doc(currentUser).update(updateData);
-
-
-
-// ✅ UPDATE BANQUE IMMÉDIAT
-updateBankDisplay({
-    character: {
-        gold: newGold
-    }
-});
-
-contentDiv.innerHTML = `
-  <div class="combat-wrap combat-animate">
-    <div class="combat-top">
-      <div class="combat-card">
-        <div class="combat-name">${data.character.name}</div>
-        <div class="combat-stats">
-          <span class="badge">❤️ HP: ${pHP}</span>
-          <span class="badge">⚔️ ATK: ${pATK}</span>
-          <span class="badge">🛡️ DEF: ${pDEF}</span>
-        </div>
-        <div class="hpbar"><div class="hpfill" style="width:100%"></div></div>
-      </div>
-
-      <div class="combat-vs">VS</div>
-
-      <div class="combat-card" id="monsterCard">
-        <div class="combat-name">${monster.name}</div>
-        <div class="combat-emoji">${monsterEmoji}</div>
-        <div class="combat-stats">
-          <span class="badge">❤️ HP: ${mHP}</span>
-          <span class="badge">⚔️ ATK: ${mATK}</span>
-          <span class="badge">🛡️ DEF: ${mDEF}</span>
-          <span class="badge">💰 Or: ${monster.gold ?? 0}</span>
-        </div>
-        <div class="hpbar"><div class="hpfill" style="width:100%"></div></div>
-      </div>
-    </div>
-
-    <div class="combat-log">${logText}</div>
-  </div>
-`;
-
-showPopup('explorePopup');
-
-// petit feedback visuel
-const monsterCard = document.getElementById("monsterCard");
-if(monsterCard && isWin){
-  // le monstre "prend un coup"
-  monsterCard.classList.add("shake");
-  setTimeout(() => monsterCard.classList.remove("shake"), 260);
-}
-}
-
-
-// Boutons de la popup
-document.getElementById('exploreClose').onclick = () => {
-    overlay.style.display = 'none';
-    document.getElementById('explorePopup').style.display = 'none';
-};
-
-document.getElementById('exploreNext').onclick = () => {
-    explore(); // relance un nouveau combat
-};
-
-// Bouton explorer dans le village
-document.getElementById('exploreBtn').onclick = () => {
-    explore();
-};
-
-// Charger les données depuis Firestore si joueur connecté
-
-function upgradeHouse(cost) {
-    if (bank.gold >= cost) {
-        bank.gold -= cost;
-        bank.houseSpent += cost;
-        updateBankDisplay();
-
-        // Mise à jour Firestore
-        db.collection('players').doc(currentUser).update({
-            "character.gold": bank.gold,
-            "character.spentHouse": bank.houseSpent
-
-        });
-    } else {
-        alert("Pas assez de sous !");
-    }
-}
-
-function upgradeVillage(cost) {
-    if (bank.gold >= cost) {
-        bank.gold -= cost;
-        bank.villageSpent += cost;
-        updateBankDisplay();
-
-        db.collection('players').doc(currentUser).update({
-            "character.gold": bank.gold,
-            "character.spentVillage": bank.villageSpent
-
-        });
-    } else {
-        alert("Pas assez de sous !");
-    }
-}
-safeOnClick('exploreBtn', explore);
-
-// ===== AJOUT CRÉATURE =====
-safeOnClick('saveMonsterBtn', async () => {
-
-
-    const name = document.getElementById('monsterName').value;
-    const attack = parseInt(document.getElementById('monsterAttack').value);
-    const defense = parseInt(document.getElementById('monsterDefense').value);
-    const hp = parseInt(document.getElementById('monsterHp').value);
-    const gold = parseInt(document.getElementById('monsterGold').value);
-
-    const imageFile = document.getElementById('monsterImage').files[0];
-
-    if(!name || !attack || !defense || !hp || !gold){
-        alert("Merci de remplir tous les champs !");
-        return;
-    }
-
-    let imageUrl = "";
-
-    if(imageFile){
-        const storageRef = firebase.storage().ref();
-        const imgRef = storageRef.child("monsters/" + name + ".png");
-
-        await imgRef.put(imageFile);
-
-        imageUrl = await imgRef.getDownloadURL();
-    }
-if (imageFile && !imageUrl) {
-  alert("L'upload de l'image a échoué : la créature ne sera pas enregistrée.");
-  return;
-}
-
-    await db.collection("monsters").add({
-        name,
-        attack,
-        defense,
-        hp,
-        gold,
-        image: imageUrl
-    });
-
-    alert("Créature ajoutée au bestiaire !");
-
-    closeAddMonsterPopup();
-
-// rester côté admin créatures
-document.getElementById('monstersAdminPopup').style.display = 'block';
-document.getElementById('adminPopup').style.display = 'none';
-overlay.style.display = 'block';
-
-// recharger la liste
-loadMonstersList();
-
-});
-
-async function renderAdminMonsters() {
-    if (!adminMonstersList) return;
-
-    adminMonstersList.innerHTML = "";
-
-    const table = document.createElement("table");
-
-    const thead = document.createElement("thead");
-    thead.innerHTML = `
-      <tr style="background-color:#d4af37;color:#000;">
-        <th>Nom</th>
-        <th>ATK</th>
-        <th>DEF</th>
-        <th>HP</th>
-        <th>Or</th>
-        <th>Actions</th>
-      </tr>
-    `;
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-
-    const snap = await db.collection("monsters").get();
-
-    snap.forEach(docSnap => {
-        const m = docSnap.data();
-        const id = docSnap.id;
-
-        const tr = document.createElement("tr");
-
-        const nameInput = document.createElement("input");
-        nameInput.value = m.name || "";
-        nameInput.style.width = "95%";
-
-        const atkInput = document.createElement("input");
-        atkInput.type = "number";
-        atkInput.value = m.attack ?? 0;
-        atkInput.style.width = "70px";
-
-        const defInput = document.createElement("input");
-        defInput.type = "number";
-        defInput.value = m.defense ?? 0;
-        defInput.style.width = "70px";
-
-        const hpInput = document.createElement("input");
-        hpInput.type = "number";
-        hpInput.value = m.hp ?? 0;
-        hpInput.style.width = "70px";
-
-        const goldInput = document.createElement("input");
-        goldInput.type = "number";
-        goldInput.value = m.gold ?? 0;
-        goldInput.style.width = "70px";
-
-        const tdName = document.createElement("td"); tdName.appendChild(nameInput);
-        const tdAtk = document.createElement("td"); tdAtk.appendChild(atkInput);
-        const tdDef = document.createElement("td"); tdDef.appendChild(defInput);
-        const tdHp  = document.createElement("td"); tdHp.appendChild(hpInput);
-        const tdGold= document.createElement("td"); tdGold.appendChild(goldInput);
-
-        const tdActions = document.createElement("td");
-
-        const saveBtn = document.createElement("button");
-        saveBtn.textContent = "💾";
-        saveBtn.title = "Enregistrer";
-        saveBtn.onclick = async () => {
-            await db.collection("monsters").doc(id).update({
-                name: nameInput.value.trim(),
-                attack: parseInt(atkInput.value, 10) || 0,
-                defense: parseInt(defInput.value, 10) || 0,
-                hp: parseInt(hpInput.value, 10) || 0,
-                gold: parseInt(goldInput.value, 10) || 0
-            });
-            alert("Créature mise à jour !");
-        };
-
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "🗑️";
-        delBtn.title = "Supprimer";
-        delBtn.onclick = async () => {
-            if (!confirm(`Supprimer "${m.name || "cette créature"}" ?`)) return;
-            await db.collection("monsters").doc(id).delete();
-            await renderAdminMonsters(); // refresh
-            alert("Créature supprimée.");
-        };
-
-        tdActions.appendChild(saveBtn);
-        tdActions.appendChild(delBtn);
-
-        tr.appendChild(tdName);
-        tr.appendChild(tdAtk);
-        tr.appendChild(tdDef);
-        tr.appendChild(tdHp);
-        tr.appendChild(tdGold);
-        tr.appendChild(tdActions);
-
-        tbody.appendChild(tr);
-    });
-
-    table.appendChild(tbody);
-    adminMonstersList.appendChild(table);
-}
-
-
-// ===== BESTIAIRE =====
-
-// Associe un emoji à chaque monstre selon son nom
-function getMonsterEmoji(name) {
-    name = name.toLowerCase();
-    if (name.includes('lapin')) return '🐇';
-    if (name.includes('rat')) return '🐀';
-    if (name.includes('dragon')) return '🐉';
-    if (name.includes('balrog')) return '🔥';
-    if (name.includes('loup')) return '🐺';
-    if (name.includes('araignée')) return '🕷️';
-    if (name.includes('orque')) return '🧌';
-    if (name.includes('squelette')) return '💀';
-    if (name.includes('vampire')) return '🧛';
-    if (name.includes('hydre')) return '🐍';
-    return '👾';
-}
-
-async function openBestiary() {
-    if (!currentUser) return;
-
-    const doc = await db.collection('players').doc(currentUser).get();
-    const data = doc.data();
-
-    // Monstres réellement "découverts" (selon ton système actuel)
-    const met = (data.character && data.character.metMonsters) ? data.character.metMonsters : [];
-
-    const content = document.getElementById('bestiaryContent');
-    content.innerHTML = ""; // reset
-
-    // 1) Charger les monstres depuis Firestore
-    const snapshot = await db.collection('monsters').get();
-const monsters = [];
-snapshot.forEach(d => monsters.push({ id: d.id, ...d.data() }));
-
-
-    // 2) Calculer total APRES initialisation
-    const total = monsters.length;
-
-// On sécurise et on enlève les doublons
-const metSet = new Set((met || []).filter(Boolean));
-
-// Compte uniquement les monstres existants dans la collection
-const count = monsters.filter(m => metSet.has(m.name)).length;
-
-
-    // Titre
-    content.innerHTML = `<h2>📖 Bestiaire – ${count} / ${total}</h2>`;
-
-// 3) Affichage
-monsters.forEach(monster => {
-    const line = document.createElement('p');
-
-    const emoji = getMonsterEmoji(monster.name || "");
-    const seen = metSet.has(monster.name);
-
-    if (seen) {
-        line.innerHTML = `${emoji} <b>${monster.name}</b> – Récompense : ${monster.gold ?? 0} sous`;
-        line.style.cursor = "pointer";
-        line.onclick = () => showMonsterDetails(monster);
-    } else {
-        line.innerHTML = `${emoji} <b>???</b> – Monstre inconnu`;
-        line.style.opacity = "0.4";
-        line.style.cursor = "default";
-        line.onclick = null;
-    }
-
-    content.appendChild(line);
-});
-
-
-    overlay.style.display = 'block';
-    document.getElementById('bestiaryPopup').style.display = 'block';
-}
-function showMonsterDetails(monster) {
-
-    const content = document.getElementById('bestiaryContent');
-
-    content.innerHTML = `
-        <h2>${monster.name}</h2>
-        ${monster.image ? `<img src="${monster.image}" style="width:180px; display:block; margin:10px auto; border-radius:12px; border:2px solid #d4af37;">` : ""}
-        <p>❤️ Vie : ${monster.hp}</p>
-        <p>⚔️ Attaque : ${monster.attack}</p>
-        <p>🛡️ Défense : ${monster.defense}</p>
-        <p>💰 Récompense : ${monster.gold ?? 0} sous</p>
-        <button onclick="openBestiary()">⬅ Retour au bestiaire</button>
-    `;
-}
-
-// =======================
-// AJOUT CRÉATURE (ADMIN)
-// =======================
-
-function openAddMonsterPopup(){
-    overlay.style.display = 'block';
-    document.getElementById('addMonsterPopup').style.display = 'block';
-}
-
-function closeAddMonsterPopup(){
-    document.getElementById('addMonsterPopup').style.display = 'none';
-    overlay.style.display = 'none';
-
-    // reset champs
-    document.getElementById('addMonsterName').value = '';
-    document.getElementById('addMonsterAttack').value = '';
-    document.getElementById('addMonsterDefense').value = '';
-    document.getElementById('addMonsterHp').value = '';
-    document.getElementById('addMonsterGold').value = '';
-    document.getElementById('addMonsterImage').value = '';
-}
-
-// Ouvrir popup depuis Admin
-safeOnClick('openAddMonsterBtn', () => {
-    // (optionnel) fermer l’admin pour éviter 2 popups empilées
-    document.getElementById('adminPopup').style.display = 'none';
-    openAddMonsterPopup();
-});
-
-// Bouton annuler
-safeOnClick('addMonsterCancelBtn', () => {
-    closeAddMonsterPopup();
-});
-
-// Enregistrer créature (sans image pour l’instant si tu n’as pas encore Storage OK)
-safeOnClick('addMonsterSaveBtn', async () => {
-
-    const name = document.getElementById('addMonsterName').value.trim();
-    const attack = parseInt(document.getElementById('addMonsterAttack').value, 10);
-    const defense = parseInt(document.getElementById('addMonsterDefense').value, 10);
-    const hp = parseInt(document.getElementById('addMonsterHp').value, 10);
-    const gold = parseInt(document.getElementById('addMonsterGold').value, 10);
-
-    const imageFile = document.getElementById('addMonsterImage').files[0];
-
-    // IMPORTANT : autoriser 0 (par ex défense 0) => on teste isNaN, pas "!attack"
-    if(!name || Number.isNaN(attack) || Number.isNaN(defense) || Number.isNaN(hp) || Number.isNaN(gold)){
-        alert("Merci de remplir tous les champs (les nombres peuvent être à 0).");
-        return;
-    }
-
-    // Image : si tu n’as pas encore Firebase Storage configuré correctement, laisse vide
-    let imageUrl = "";
-
-    // ✅ Si tu veux activer l’upload image, il faut (1) inclure firebase-storage-compat.js et (2) règles Storage.
-    // Pour éviter de casser ton app maintenant, on ne tente l’upload que si firebase.storage existe.
-    console.log("firebase.storage =", firebase.storage);
-console.log("imageFile =", imageFile);
-
-    if (imageFile && typeof firebase.storage === "function") {
-        try{
-            const storageRef = firebase.storage().ref();
-            const safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-            const imgRef = storageRef.child("monsters/" + safeName + "-" + Date.now() + ".png");
-            await imgRef.put(imageFile);
-            imageUrl = await imgRef.getDownloadURL();
-        }catch(e){
-            console.error(e);
-            alert("Image non enregistrée (Storage non configuré). La créature sera ajoutée sans image.");
-            imageUrl = "";
-        }
-    }
-console.log("IMAGE URL =", imageUrl);
-alert(imageUrl);
-
-    await db.collection("monsters").add({
-        name,
-        attack,
-        defense,
-        hp,
-        gold,
-        image: imageUrl
-    });
-
-    alert("Créature ajoutée !");
-// rester sur la popup d'ajout : on vide les champs
-document.getElementById('addMonsterName').value = '';
-document.getElementById('addMonsterAttack').value = '';
-document.getElementById('addMonsterDefense').value = '';
-document.getElementById('addMonsterHp').value = '';
-document.getElementById('addMonsterGold').value = '';
-document.getElementById('addMonsterImage').value = '';
-
-    if (document.getElementById('monstersAdminPopup').style.display === 'block') {
-  loadMonstersList();
-}
-
-});
-// =======================
-// PAGE ADMIN - CREATURES
-// =======================
-let monstersCache = [];
-
-function openMonstersAdminPopup(){
-  const u = firebase.auth().currentUser;
-  if(!u || u.email !== adminEmail){
-    alert("Accès admin refusé.");
-    return;
-  }
-
-  overlay.style.display = 'block';
-
-  // on cache le panel admin et on affiche la page créatures
-  document.getElementById('adminPopup').style.display = 'none';
-  document.getElementById('monstersAdminPopup').style.display = 'block';
-
-  loadMonstersList();
-}
-
-function backToAdminPopup(){
-  document.getElementById('monstersAdminPopup').style.display = 'none';
-  document.getElementById('adminPopup').style.display = 'block';
-}
-
-// charge les monstres depuis Firestore
-async function loadMonstersList(){
-  const list = document.getElementById('monstersList');
-  if(!list){
-    console.error("❌ monstersList introuvable (id manquant dans le HTML)");
-    return;
-  }
-
-  list.innerHTML = "<p>Chargement...</p>";
-
-  try{
-    const snap = await db.collection("monsters").get();
-    monstersCache = [];
-    snap.forEach(d => monstersCache.push({ id: d.id, ...d.data() }));
-
-    console.log("✅ monstersCache size =", monstersCache.length);
-    renderMonstersList();
-  } catch(e){
-    console.error("❌ loadMonstersList error =", e);
-    list.innerHTML = "<p>Erreur de chargement (voir console F12).</p>";
-  }
-}
-
-// affiche la liste (filtre par recherche)
-function renderMonstersList(){
-  const list = document.getElementById('monstersList');
-  const searchEl = document.getElementById('monsterSearchInput');
-  if(!list) return;
-
-  const q = (searchEl?.value || "").toLowerCase().trim();
-
-  let rows = monstersCache.slice();
-  if(q) rows = rows.filter(m => (m.name || "").toLowerCase().includes(q));
-
-  list.innerHTML = "";
-
-  if(rows.length === 0){
-    list.innerHTML = "<p>Aucune créature.</p>";
-    return;
-  }
-
-  rows.forEach(m => {
-    const line = document.createElement("div");
-    line.style.display = "flex";
-    line.style.justifyContent = "space-between";
-    line.style.alignItems = "center";
-    line.style.padding = "8px";
-    line.style.borderBottom = "1px solid #ddd";
-    line.style.gap = "10px";
-
-    const left = document.createElement("div");
-    left.style.flex = "1";
-    left.style.cursor = "pointer";
-    left.innerHTML = `<b>${m.name || "(sans nom)"}</b> <span style="opacity:.8;">— ATK:${m.attack ?? 0} DEF:${m.defense ?? 0} HP:${m.hp ?? 0} Or:${m.gold ?? 0}</span>`;
-
-    // clic = ouvre ta popup d'édition (doit exister)
-    left.onclick = () => openEditMonster(m);
-
-    const right = document.createElement("div");
-
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "✏️";
-    editBtn.title = "Modifier";
-    editBtn.onclick = () => openEditMonster(m);
-
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "🗑️";
-    delBtn.title = "Supprimer";
-    delBtn.onclick = async () => {
-      if(!confirm(`Supprimer "${m.name}" ?`)) return;
-      await db.collection("monsters").doc(m.id).delete();
-      monstersCache = monstersCache.filter(x => x.id !== m.id);
-      renderMonstersList();
-    };
-
-    right.appendChild(editBtn);
-    right.appendChild(delBtn);
-
-    line.appendChild(left);
-    line.appendChild(right);
-
-    list.appendChild(line);
-  });
-}
-
-// -----------------------
-// Branchement des boutons
-// -----------------------
-safeOnClick('openMonstersAdminBtn', openMonstersAdminPopup);
-safeOnClick('monstersBackToAdminBtn', backToAdminPopup);
-safeOnClick('monstersCreateBtn', () => { backToAdminPopup(); openAddMonsterPopup(); });
-
-const searchInput = document.getElementById('monsterSearchInput');
-if(searchInput) searchInput.oninput = renderMonstersList;
-
-function toast(msg, type="info", ms=2200){
-  const host = document.getElementById("toastHost");
-  if(!host){ alert(msg); return; }
-
-  const el = document.createElement("div");
-  el.className = `toast ${type}`;
-
-  const icon = type === "success" ? "✅" : type === "error" ? "⛔" : "ℹ️";
-
-  el.innerHTML = `<div class="ticon">${icon}</div><div class="tmsg">${msg}</div>`;
-  host.appendChild(el);
-
-  setTimeout(() => {
-    el.style.opacity = "0";
-    el.style.transform = "translateY(6px)";
-    el.style.transition = "all .18s ease";
-    setTimeout(() => el.remove(), 220);
-  }, ms);
-}
-
-// =======================
-// CONFIG JEU - COMBATS / JOUR
-// =======================
-let gameConfig = { dailyCombatLimit: 0 };
-
-function getTodayKeyParis(){
-  return new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
-}
-
-async function loadGameConfig(){
-  try{
-    const doc = await db.collection("config").doc("game").get();
-    const data = doc.exists ? doc.data() : {};
-    gameConfig.dailyCombatLimit = parseInt(data.dailyCombatLimit, 10) || 0;
-
-    const input = document.getElementById("dailyCombatLimitInput");
-    const info = document.getElementById("dailyCombatLimitInfo");
-
-    if(input) input.value = gameConfig.dailyCombatLimit;
-    if(info){
-      info.textContent = gameConfig.dailyCombatLimit > 0
-        ? `Limite actuelle : ${gameConfig.dailyCombatLimit} combats / jour`
-        : `Limite actuelle : illimité`;
-    }
-  }catch(e){
-    console.error("loadGameConfig error =", e);
-  }
-}
-
-async function saveGameConfigDailyLimit(){
-  const u = firebase.auth().currentUser;
-  if(!u || u.email !== adminEmail){
-    alert("Accès admin refusé.");
-    return;
-  }
-
-  const raw = document.getElementById("dailyCombatLimitInput").value;
-  const limit = Math.max(0, parseInt(raw, 10) || 0);
-
-  await db.collection("config").doc("game").set({ dailyCombatLimit: limit }, { merge: true });
-  gameConfig.dailyCombatLimit = limit;
-
-  const info = document.getElementById("dailyCombatLimitInfo");
-  if(info){
-    info.textContent = limit > 0 ? `Limite actuelle : ${limit} combats / jour` : `Limite actuelle : illimité`;
-  }
-
-  if (typeof toast === "function") toast("Limite enregistrée.", "success");
-  else alert("Limite enregistrée.");
-}
-
-// =======================
-// BRANCHEMENTS PARAMETRES
-// =======================
-
-// bouton sauvegarde
-safeOnClick('saveDailyCombatLimitBtn', saveGameConfigDailyLimit);
-
-// clic sur l’onglet Paramètres
-safeOnClick('tabSettingsBtn', async () => {
-  setAdminTab("settings");
-  await loadGameConfig();
-});
-
-function getTodayKeyParis(){
-  return new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
-}
-
-async function ensureDailyCombatCounter() {
-  if(!currentUser) return;
-
-  const today = getTodayKeyParis();
-  const ref = db.collection('players').doc(currentUser);
-  const snap = await ref.get();
-  const data = snap.data();
-  if(!data || !data.character) return;
-
-  const dc = data.character.dailyCombats;
-
-  // si absent -> on crée
-  if(!dc || typeof dc !== "object" || !dc.date){
-    await ref.update({
-      "character.dailyCombats": { date: today, count: 0 }
-    });
-    return;
-  }
-
-  // si jour différent -> reset
-  if(dc.date !== today){
-    await ref.update({
-      "character.dailyCombats": { date: today, count: 0 }
-    });
-  }
-}
-safeOnClick('closeRulesBtn', () => {
-  document.getElementById('rulesPopup').style.display = 'none';
-  overlay.style.display = 'none';
-});
-
-document.getElementById("createBuildingBtn").addEventListener("click", async (e) => {
-  e.preventDefault();
-
-  const name = document.getElementById("buildingNameInput").value.trim();
-  const atk = Number(document.getElementById("buildingAtkInput").value);
-  const def = Number(document.getElementById("buildingDefInput").value);
-  const cost = Number(document.getElementById("buildingCostInput").value);
-
-  if (!name) return alert("Nom du bâtiment obligatoire");
-  if (!Number.isFinite(atk) || !Number.isFinite(def) || !Number.isFinite(cost)) return alert("Valeurs invalides");
-  if (cost <= 0) return alert("Le coût doit être supérieur à 0");
-  if (atk === 0 && def === 0) return alert("Le bâtiment doit donner au moins un bonus");
-
-  console.log("[Village/Admin] création demandée :", { name, atk, def, cost });
-
-try {
-  await db.collection("buildingsCatalog").add({
-    name,
-    atkBonus: atk,
-    defBonus: def,
-    cost: cost,
-    enabled: true
-  });
-
-  console.log("[Village/Admin] bâtiment créé");
-  alert("Bâtiment créé ✅");
-
-  // reset formulaire
-  document.getElementById("buildingNameInput").value = "";
-  document.getElementById("buildingAtkInput").value = 0;
-  document.getElementById("buildingDefInput").value = 0;
-  document.getElementById("buildingDefInput").value = 0;
-  document.getElementById("buildingCostInput").value = 0;
-
-} catch (error) {
-  console.error("[Village/Admin] création refusée/échouée :", error);
-  alert("Création impossible : " + (error?.message || "Erreur inconnue"));
-}
-
-});
-
-
-
-async function deleteBuilding(buildingId) {
-  if (!confirm("Supprimer ce bâtiment ?")) return;
-
-  console.log("[Village/Admin] suppression demandée id =", buildingId);
-
-  try {
-    await db.collection("buildingsCatalog").doc(buildingId).delete();
-    console.log("[Village/Admin] suppression OK id =", buildingId);
-    alert("Bâtiment supprimé ✅");
-  } catch (error) {
-    console.error("[Village/Admin] suppression refusée/échouée :", error);
-    alert("Suppression impossible : " + (error?.message || "Erreur inconnue"));
-  }
-}
-
-// =======================
-// ADMIN - LISTE BÂTIMENTS (officielle)
-// =======================
-if (document.getElementById("buildingsList")) {
-  db.collection("buildingsCatalog").onSnapshot((snapshot) => {
-    const list = document.getElementById("buildingsList");
+function updateMembersList(){
+    const list = document.getElementById("membersList");
     list.innerHTML = "";
 
-    snapshot.forEach((docSnap) => {
-      const b = docSnap.data();
+    members.forEach((m, i) => {
+        let div = document.createElement("div");
+        div.className = "memberItem";
+        div.draggable = isAdmin;
+        div.dataset.index = i;
 
-      const atk = Number(b.atkBonus ?? b.atk ?? 0);
-      const def = Number(b.defBonus ?? b.def ?? 0);
-      const cost = Number(b.cost ?? 0);
-      const enabled = (b.enabled !== false);
+        if(isAdmin){
+            div.addEventListener("dragstart", dragStart);
+            div.addEventListener("dragover", dragOver);
+            div.addEventListener("drop", dropMember);
+        }
 
-      const row = document.createElement("div");
-      row.style.marginBottom = "8px";
-      row.innerHTML = `
-        <strong>${b.name || "(sans nom)"}</strong>
-        — ⚔️ +${atk} / 🛡️ +${def}
-        — ${cost} sous
-        ${enabled ? "" : "<em>(désactivé)</em>"}
-        <button type="button" class="btn-primary" style="padding:4px 8px; margin-left:8px;" onclick="deleteBuilding('${docSnap.id}')">
-          Supprimer
-        </button>
-      `;
+        let bgColor = (i % 2 === 0) ? "#ffe5b4" : "#ffd699";
+        div.innerHTML = `
+          <span style="background-color:${bgColor}">
+            ${m.nom} ${m.prenom}: ${calculateAnnualTotal(m)} €
+          </span>
+        `;
 
-      list.appendChild(row);
+        if(isAdmin){
+            let btn = document.createElement("button");
+            btn.textContent = "Supprimer";
+            btn.style.marginLeft = "15px";
+            btn.onclick = () => deleteMember(i);
+            div.appendChild(btn);
+        }
+
+        list.appendChild(div);
+    });
+}
+
+function dragStart(e){
+    draggedIndex = Number(e.currentTarget.dataset.index);
+    e.currentTarget.style.opacity = "0.5";
+}
+
+function dragOver(e){
+    e.preventDefault();
+}
+
+function dropMember(e){
+    e.preventDefault();
+    const targetIndex = Number(e.currentTarget.dataset.index);
+    if(draggedIndex === null || draggedIndex === targetIndex) return;
+
+    // Déplacer membre
+    const movedMember = members.splice(draggedIndex, 1)[0];
+    members.splice(targetIndex, 0, movedMember);
+
+    // Déplacer aussi les consommations
+    months.forEach(month => {
+        if(consumptions[month]){
+            const movedCons = consumptions[month].splice(draggedIndex, 1)[0];
+            consumptions[month].splice(targetIndex, 0, movedCons);
+        }
     });
 
-    if (snapshot.empty) {
-      list.innerHTML = "<em>Aucun bâtiment dans le catalogue.</em>";
-    }
-  });
-}
-// =======================
-// ADMIN - JOUEURS (liste simple par équipe) - TEMPS RÉEL (robuste)
-// =======================
-let unsubAdminPlayers = null;
-
-function getAllAdminPlayersHosts(){
-  const adminPopup = document.getElementById("adminPopup");
-  if(!adminPopup) return [];
-  return Array.from(adminPopup.querySelectorAll("#adminPlayersList"));
+    draggedIndex = null;
+    saveData();
+    updateMembersList();
 }
 
-function startAdminPlayersLive() {
-  const u = firebase.auth().currentUser;
-  if (!u || u.email !== adminEmail) {
-    alert("Accès admin refusé.");
-    return;
-  }
 
-  const hosts = getAllAdminPlayersHosts();
-  if (hosts.length === 0) {
-    console.warn("❌ Aucun #adminPlayersList trouvé dans #adminPopup");
-    return;
-  }
+// === SUPPRESSION MEMBRE ===
+function deleteMember(index){
+    if(!isAdmin) return;
+    let member=members[index]; members.splice(index,1);
+    months.forEach(m=>{ if(consumptions[m]) consumptions[m]=consumptions[m].filter(c=>!(c.nom===member.nom && c.prenom===member.prenom)); });
+    saveData();
+}
 
-  // stop ancien listener si déjà actif
-  if (unsubAdminPlayers) unsubAdminPlayers();
+// === MOIS ===
+function loadMonths(){
+    const div=document.getElementById("monthsGrid");
+    months.forEach(m=>{ let btn=document.createElement("button"); btn.textContent=m; btn.onclick=()=>openMonth(m); div.appendChild(btn); });
+}
+loadMonths();
 
-  hosts.forEach(h => h.innerHTML = "<p>Chargement...</p>");
-
-  unsubAdminPlayers = db.collection("players").onSnapshot((snap) => {
-  console.log("✅ Admin players live snap size =", snap.size);
-
-  // ✅ normalise les équipes (tu as plusieurs variantes en base)
-  function canonTeam(teamName) {
-    const t = String(teamName || "").toLowerCase();
-    if (t.includes("dragon pourpre")) return "Ordre du Dragon Pourpre ⚔️";
-    if (t.includes("serpent noir")) return "Confrérie du Serpent Noir 🐍";
-    return "Sans équipe";
-  }
-
-  // ✅ (RE)CONSTRUIT teams à CHAQUE snapshot
-  const teams = {
-    "Ordre du Dragon Pourpre ⚔️": [],
-    "Confrérie du Serpent Noir 🐍": [],
-    "Sans équipe": [],
-    "Sans personnage": []
-  };
-
-  snap.forEach((docSnap) => {
-    const p = docSnap.data();
-    const uid = docSnap.id;
-
-    if (!p || !p.character) {
-      teams["Sans personnage"].push({ uid, name: "(sans personnage)", data: p });
-      return;
-    }
-
-    const teamName = canonTeam(p.character.team);
-    teams[teamName].push({
-      uid,
-      name: p.character.name || "(sans nom)",
-      data: p
+function openMonth(month){
+    document.getElementById("popotePage").style.display="none";
+    document.getElementById("monthPage").style.display="block";
+    document.getElementById("monthTitle").textContent=month;
+    const tbody=document.getElementById("monthTable"); tbody.innerHTML="";
+    if(!consumptions[month]) consumptions[month]=[];
+    consumptions[month].forEach((m,i)=>{
+        let row=tbody.insertRow();
+        row.insertCell().textContent=m.nom;
+        row.insertCell().textContent=m.prenom;
+        ["eau","soda","gour","cafe"].forEach((key,j)=>{
+            let cell=row.insertCell();
+            cell.innerHTML=`<input type="number" min="0" value="${m[key]}" ${!isAdmin?'disabled':''} oninput="updateConsumption('${month}',${i})">`;
+        });
+        row.insertCell().textContent=(m.eau*prices.eau + m.soda*prices.soda + m.gour*prices.gour + m.cafe).toFixed(2);
     });
-  });
+    updateMonthTotal(month);
+}
 
-  // tri A→Z
-  Object.keys(teams).forEach((k) => {
-    teams[k].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-  });
+// === CALCULS ET SAUVEGARDE ===
+function updateConsumption(month,index){
+    if(!isAdmin) return;
+    const row=document.getElementById("monthTable").rows[index];
+    const m=consumptions[month][index];
+    m.eau=parseFloat(row.cells[2].children[0].value)||0;
+    m.soda=parseFloat(row.cells[3].children[0].value)||0;
+    m.gour=parseFloat(row.cells[4].children[0].value)||0;
+    m.cafe=parseFloat(row.cells[5].children[0].value)||0;
+    row.cells[6].textContent=(m.eau*prices.eau + m.soda*prices.soda + m.gour*prices.gour + m.cafe).toFixed(2);
+    updateMonthTotal(month);
+    saveData();
+}
 
-  function makeSection(title, arr) {
-    const box = document.createElement("div");
-    box.style.marginBottom = "14px";
+function updateMonthTotal(month){
+    let sum=consumptions[month].reduce((acc,m)=>acc + (m.eau*prices.eau + m.soda*prices.soda + m.gour*prices.gour + m.cafe),0);
+    document.getElementById("monthTotal").textContent=sum.toFixed(2);
+}
 
-    const h3 = document.createElement("h3");
-    h3.style.margin = "10px 0 6px";
-    h3.textContent = `${title} — ${arr.length} joueur(s)`;
-    box.appendChild(h3);
+// === FIRESTORE SAUVEGARDE ET SYNCHRO ===
+function saveData(){
+    if(!isAdmin) return;  // seuls les admins sauvegardent
+    db.collection("popoteData").doc("main").set({members, consumptions})
+    .then(()=>console.log("Données sauvegardées"))
+    .catch(err=>console.error(err));
+}
 
-    if (arr.length === 0) {
-      const p = document.createElement("p");
-      p.style.opacity = "0.7";
-      p.textContent = "Aucun.";
-      box.appendChild(p);
-      return box;
+
+db.collection("popoteData").doc("main").onSnapshot(doc=>{
+    if(doc.exists){
+        const data = doc.data();
+        members = data.members || [];
+        consumptions = data.consumptions || {};
+        updateMembersList();
     }
-
-    arr.forEach((item) => {
-      // si pas de personnage, pas cliquable
-      if (!item.data || !item.data.character) {
-        const line = document.createElement("div");
-        line.style.padding = "8px";
-        line.style.borderBottom = "1px solid #ddd";
-        line.style.opacity = "0.6";
-        line.innerHTML = `👉 <b>${item.name}</b>`;
-        box.appendChild(line);
-        return;
-      }
-
-      const line = document.createElement("div");
-      line.style.padding = "8px";
-      line.style.borderBottom = "1px solid #ddd";
-      line.style.cursor = "pointer";
-      line.innerHTML = `👉 <b>${item.name}</b>`;
-      line.onclick = () => openAdminPlayerEdit(item.uid);
-      box.appendChild(line);
-    });
-
-    return box;
-  }
-
-  // ⚠️ IMPORTANT : on recrée les sections POUR CHAQUE host (pas de cloneNode)
-  hosts.forEach((h) => {
-    h.innerHTML = "";
-    h.appendChild(makeSection("Ordre du Dragon Pourpre ⚔️", teams["Ordre du Dragon Pourpre ⚔️"]));
-    h.appendChild(makeSection("Confrérie du Serpent Noir 🐍", teams["Confrérie du Serpent Noir 🐍"]));
-
-    // si tu veux voir les cas “bizarres”
-    if (teams["Sans équipe"].length > 0) h.appendChild(makeSection("Sans équipe", teams["Sans équipe"]));
-    // if (teams["Sans personnage"].length > 0) h.appendChild(makeSection("Sans personnage", teams["Sans personnage"]));
-  });
-
-}, (err) => {
-  console.error("Admin players live error:", err);
-  hosts.forEach(h => h.innerHTML = "<p>Erreur chargement joueurs (voir console F12).</p>");
 });
 
+// === CODE UNITE AVANT INSCRIPTION ===
+function askUnitCode(){
+  hideForms(); // cache login/signup si visibles
+  document.getElementById("unitCodeModal").style.display = "flex";
 }
 
-function stopAdminPlayersLive() {
-  if (unsubAdminPlayers) {
-    unsubAdminPlayers();
-    unsubAdminPlayers = null;
-  }
+function closeUnitCode(){
+  document.getElementById("unitCodeModal").style.display = "none";
+  document.getElementById("unitCodeInput").value = "";
 }
 
+function validateUnitCode(){
+  const code = document.getElementById("unitCodeInput").value.trim();
 
-
-
-// =======================
-// ADMIN - POPUP EDIT JOUEUR
-// =======================
-let adminEditingUid = null;
-
-function formatDateFR(ts) {
-  if (!ts) return "—";
-  try {
-    const d = ts.toDate ? ts.toDate() : new Date(ts);
-    return d.toLocaleString("fr-FR");
-  } catch {
-    return "—";
+  if(code === "15315"){
+    closeUnitCode();
+    showSignupForm(); // ouvre le formulaire d'inscription après validation
+  } else {
+    alert("Code unité incorrect !");
+    closeUnitCode();
+    hideForms(); // retour propre à l'accueil authPage
   }
 }
-
-async function openAdminPlayerEdit(uid) {
-  const u = firebase.auth().currentUser;
-  if (!u || u.email !== adminEmail) {
-    alert("Accès admin refusé.");
-    return;
-  }
-
-  const snap = await db.collection("players").doc(uid).get();
-  const p = snap.exists ? snap.data() : null;
-
-  if (!p || !p.character) {
-    alert("Ce joueur n'a pas de personnage.");
-    return;
-  }
-
-  // ✅ Anti-crash : si la popup/ids n'existent pas, on s'arrête proprement
-  const popup = document.getElementById("adminPlayerEditPopup");
-  const elName = document.getElementById("adminEditPlayerName");
-  const elLast = document.getElementById("adminEditLastLogin");
-  const elTot  = document.getElementById("adminEditGoldTotal");
-  const elCur  = document.getElementById("adminEditGoldCurrent");
-  const elXpTot = document.getElementById("adminEditTotalXp");
-  const selClass = document.getElementById("adminEditClassSelect");
-  const selTeam  = document.getElementById("adminEditTeamSelect");
-
-  if (!popup || !elName || !elLast || !elXpTot || !elTot || !elCur || !selClass || !selTeam) {
-    console.error("❌ Popup admin joueur manquante dans le HTML (adminPlayerEditPopup + ids adminEdit...).");
-    alert("La popup 'édition joueur' n'est pas encore dans ton HTML (ids manquants).");
-    return;
-  }
-
-  adminEditingUid = uid;
-
-  // infos
-  elName.textContent = `Nom : ${p.character.name || "(sans nom)"}`;
-  elLast.textContent = `Dernière connexion : ${formatDateFR(p.lastLoginAt)}`;
-
-  const totalXp = calcTotalXp(p.level || 1, p.xp || 0);
-elXpTot.textContent = `XP totale : ${totalXp} XP (niveau ${p.level || 1} + ${p.xp || 0} XP)`;
-
-  const totalEarned = Number(p.character.totalGoldEarned ?? 0);
-  const currentGold = Number(p.character.gold ?? 0);
-
-  elTot.textContent = `Or total gagné : ${totalEarned} sous`;
-  elCur.textContent = `Or actuel : ${currentGold} sous`;
-
-  // selects
-  selClass.value = p.character.classe || "Guerrier";
-  selTeam.value = p.character.team || "Ordre du Dragon Pourpre ⚔️";
-
-  // afficher popup
-  document.getElementById("adminPopup").style.display = "none";
-  popup.style.display = "block";
-  overlay.style.display = "block";
-}
-async function uploadAdminAvatarForPlayer(uid) {
-  const u = firebase.auth().currentUser;
-  if (!u || u.email !== adminEmail) {
-    alert("Accès admin refusé.");
-    return;
-  }
-
-  const fileInput = document.getElementById("adminAvatarFile");
-  const preview = document.getElementById("adminAvatarPreview");
-  const file = fileInput?.files?.[0];
-
-  if (!file) {
-    alert("Choisis une image d'abord.");
-    return;
-  }
-
-  // sécurité soft
-  if (!file.type.startsWith("image/")) {
-    alert("Fichier invalide : image uniquement.");
-    return;
-  }
-
-  // upload Storage
-  const ext = (file.name.split(".").pop() || "png").toLowerCase();
-  const safeExt = ["png","jpg","jpeg","webp"].includes(ext) ? ext : "png";
-
-  const storageRef = firebase.storage().ref();
-  const path = `avatars/${uid}-${Date.now()}.${safeExt}`;
-  const imgRef = storageRef.child(path);
-
-  try {
-    await imgRef.put(file);
-    const url = await imgRef.getDownloadURL();
-
-    // Firestore : stocke l'url dans le joueur
-    await db.collection("players").doc(uid).update({
-      "character.avatarUrl": url
-    });
-
-    // optionnel : garder un miroir public si tu veux afficher les avatars dans l'équipe/village
-    await db.collection("playersPublic").doc(uid).set({
-      avatarUrl: url,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-
-    // UI
-    if (preview) {
-      preview.src = url;
-      preview.style.display = "block";
-    }
-
-    alert("✅ Avatar enregistré !");
-  } catch (e) {
-    console.error("uploadAdminAvatarForPlayer error =", e);
-    alert("Upload impossible : " + (e?.message || "Erreur inconnue"));
-  }
-}
-
-async function removeAdminAvatarForPlayer(uid) {
-  const u = firebase.auth().currentUser;
-  if (!u || u.email !== adminEmail) {
-    alert("Accès admin refusé.");
-    return;
-  }
-
-  if (!confirm("Retirer l'avatar de ce joueur ?")) return;
-
-  try {
-    await db.collection("players").doc(uid).update({
-      "character.avatarUrl": firebase.firestore.FieldValue.delete()
-    });
-
-    await db.collection("playersPublic").doc(uid).set({
-      avatarUrl: firebase.firestore.FieldValue.delete(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-
-    const preview = document.getElementById("adminAvatarPreview");
-    if (preview) {
-      preview.src = "";
-      preview.style.display = "none";
-    }
-
-    const fileInput = document.getElementById("adminAvatarFile");
-    if (fileInput) fileInput.value = "";
-
-    alert("✅ Avatar retiré.");
-  } catch (e) {
-    console.error("removeAdminAvatarForPlayer error =", e);
-    alert("Suppression impossible : " + (e?.message || "Erreur inconnue"));
-  }
-}
-safeOnClick("adminAvatarUploadBtn", async () => {
-  if (!adminEditingUid) return;
-  await uploadAdminAvatarForPlayer(adminEditingUid);
-});
-
-safeOnClick("adminAvatarRemoveBtn", async () => {
-  if (!adminEditingUid) return;
-  await removeAdminAvatarForPlayer(adminEditingUid);
-});
-
-
-// enregistrer classe/équipe
-safeOnClick("adminEditSaveBtn", async () => {
-  if (!adminEditingUid) return;
-
-  const newClass = document.getElementById("adminEditClassSelect").value;
-  const newTeam = document.getElementById("adminEditTeamSelect").value;
-
-  await db.collection("players").doc(adminEditingUid).update({
-    "character.classe": newClass,
-    "character.team": newTeam
-  });
-
-  alert("Modifications enregistrées ✅");
-});
-
-// donner XP
-safeOnClick("adminEditGiveXpBtn", async () => {
-  if (!adminEditingUid) return;
-
-  const amount = parseInt(prompt("Combien d'XP donner ?"), 10);
-  if (!amount || amount <= 0) return;
-
-  // on recharge le joueur pour utiliser ta fonction existante giveXpToPlayer
-  const snap = await db.collection("players").doc(adminEditingUid).get();
-  const p = snap.exists ? snap.data() : null;
-  if (!p) return alert("Joueur introuvable.");
-
-  await giveXpToPlayer(adminEditingUid, p, amount);
-  alert(`${amount} XP accordée ✅`);
-});
-
-// fermer / retour à la liste joueurs
-safeOnClick("adminEditCloseBtn", async () => {
-  document.getElementById("adminPlayerEditPopup").style.display = "none";
-  document.getElementById("adminPopup").style.display = "block";
-  overlay.style.display = "block";
-
-  adminEditingUid = null;
-
-  // refresh liste simple
-  startAdminPlayersLive();
-
-});
-function calcTotalXp(level, xpInLevel){
-  const lvl = Math.max(1, parseInt(level, 10) || 1);
-  const xp = Math.max(0, parseInt(xpInLevel, 10) || 0);
-
-  // somme 10*1 + 10*2 + ... + 10*(lvl-1)
-  const xpSpentForLevels = 10 * ((lvl - 1) * lvl) / 2;
-
-  return xpSpentForLevels + xp;
-}
-
-
 
 
 </script>
-<div id="toastHost" style="position:fixed; right:14px; bottom:14px; display:flex; flex-direction:column; gap:10px; z-index:9999;"></div>
+
+<!-- MODAL CODE UNITE -->
+<div class="modal" id="unitCodeModal">
+  <div class="modal-content">
+    <h3>Quelle est ton code unité ?</h3>
+    <input type="text" id="unitCodeInput" placeholder="Code unité"><br><br>
+    <button onclick="validateUnitCode()">Valider</button>
+    <button onclick="closeUnitCode()">Annuler</button>
+  </div>
+</div>
+
 
 </body>
 </html>
