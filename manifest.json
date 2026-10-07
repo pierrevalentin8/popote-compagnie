@@ -1,0 +1,17 @@
+{
+  "name": "Popote & Cie — Le carnet du bar",
+  "short_name": "Popote & Cie",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#efe2cb",
+  "theme_color": "#5b321d",
+  "icons": [
+    {
+      "src": "./popote-app-icon.png",
+      "sizes": "1280x1280",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
