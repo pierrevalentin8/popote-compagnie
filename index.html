@@ -25,6 +25,7 @@
     .overlay{position:fixed;inset:0;background:#24140fc2;display:none;align-items:center;justify-content:center;padding:20px;z-index:10;backdrop-filter:blur(3px)}.overlay.open{display:flex}.modal{width:min(100%,410px);background:var(--white);border:2px solid #b07b3a;border-radius:12px;padding:28px;box-shadow:0 25px 90px #20100666;animation:appear .18s ease}@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.modal-head{display:flex;justify-content:space-between;align-items:start;margin-bottom:23px}.modal h2{font:700 25px 'Playfair Display',serif;margin:0 0 5px}.modal-head p{margin:0;color:var(--muted);font-size:12px}.close{border:1px solid #d6bb90;background:#f3e5cd;border-radius:7px;width:32px;height:32px;font-size:19px;color:#654026}.field{margin:0 0 15px}.field label{display:block;font-size:12px;font-weight:600;margin-bottom:7px}.field input{width:100%;height:44px;border:1px solid #c9a675;border-radius:7px;background:#fffaf0;padding:0 12px;color:var(--ink);outline:none;font-size:13px}.field input:focus{border-color:#a96025;box-shadow:0 0 0 3px #a9602518}.field input[readonly]{background:#f5ead6;color:#80684e}.modal .primary{width:100%;justify-content:center;margin-top:6px;padding:13px}.error{font-size:12px;color:#b54135;background:#fbefeb;padding:10px;border-radius:7px;margin:0 0 13px;display:none}.helper{color:var(--muted);font-size:11px;line-height:1.5;margin:12px 0 0}.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;transition:.2s;background:#3e2115;color:#fff1d1;border:1px solid #bc8745;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);pointer-events:none;z-index:20}.toast.show{opacity:1;transform:translate(-50%,0)}
     @media(max-width:750px){main{padding:25px 18px 60px}.hero{grid-template-columns:1fr;padding:32px 25px;min-height:0;gap:10px;margin-bottom:37px}.hero-logo{max-height:235px;max-width:440px;margin:0 auto}.months{grid-template-columns:repeat(2,1fr);gap:10px}.month-card{min-height:68px;padding:14px}.section-head h2{font-size:23px}.topbar{padding:0 18px}.page-title{display:block}.page-title h1{font-size:35px}.actions{margin-top:19px;flex-wrap:wrap}.actions button{flex:1;justify-content:center}.badge{display:none}}
     @media(max-width:390px){.months{grid-template-columns:1fr}.hero{padding:33px 23px}.hero h1{font-size:38px}.admin-btn{padding:9px 11px}}
+    .drag-handle{display:inline-grid;place-items:center;color:#a97034;cursor:grab;user-select:none;font-size:18px;line-height:1;touch-action:none}.drag-handle:active{cursor:grabbing}.person-row.dragging{opacity:.45}.person-row.drag-over td{box-shadow:inset 0 2px #c17a2b}
   </style>
 </head>
 <body>
@@ -64,7 +65,7 @@
         const total=d.products.reduce((sum,product,pj)=>sum+(Number(person.quantities?.[pj])||0)*(Number(product.price)||0),0);
         const modes=[...new Set([...cache.paymentModes,...(person.paymentMode&&!cache.paymentModes.includes(person.paymentMode)?[person.paymentMode]:[])])];
         const paymentOptions=`<option value="">Choisir…</option>${modes.map(mode=>`<option value="${esc(mode)}" ${person.paymentMode===mode?'selected':''}>${esc(mode)}</option>`).join('')}${editable?'<option value="__add__">＋ Ajouter un mode…</option>':''}`;
-        return `<tr><td><div class="person-cell"><span class="avatar">${esc(initials(person.name))}</span>${esc(person.name)}${editable?` <button data-del-person="${pi}" title="Supprimer cette personne" style="margin-left:auto;border:0;background:none;color:#a05b50">×</button>`:''}</div></td>${quantities}<td class="pay-cell"><input type="checkbox" data-paid="${pi}" aria-label="Facture payée pour ${esc(person.name)}" ${person.paid?'checked':''} ${editable?'':'disabled'}></td><td><select class="payment-select" data-payment="${pi}" ${editable?'':'disabled'}>${paymentOptions}</select></td><td class="total-cell">${money(total)}</td></tr>`;
+        return `<tr class="person-row" data-person-row="${pi}"><td><div class="person-cell">${editable?`<span class="drag-handle" draggable="true" data-drag-person="${pi}" title="Glisser pour changer l’ordre" aria-label="Déplacer ${esc(person.name)}">⠿</span>`:''}<span class="avatar">${esc(initials(person.name))}</span>${esc(person.name)}${editable?` <button data-del-person="${pi}" title="Supprimer cette personne" style="margin-left:auto;border:0;background:none;color:#a05b50">×</button>`:''}</div></td>${quantities}<td class="pay-cell"><input type="checkbox" data-paid="${pi}" aria-label="Facture payée pour ${esc(person.name)}" ${person.paid?'checked':''} ${editable?'':'disabled'}></td><td><select class="payment-select" data-payment="${pi}" ${editable?'':'disabled'}>${paymentOptions}</select></td><td class="total-cell">${money(total)}</td></tr>`;
       }).join(''):`<tr><td colspan="${totalColumns}" style="color:#9aa194;padding:25px">Aucun membre du personnel pour le moment.</td></tr>`;
       s.innerHTML=`<div class="table-scroll"><table><thead><tr><th>Personnel</th>${productHeads}<th>Payer</th><th>Mode de paiement</th><th>Total facture</th></tr></thead><tbody>${personRows}</tbody></table></div>`;
       s.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>productModal(i,+b.dataset.edit));
@@ -73,6 +74,25 @@
       s.querySelectorAll('[data-qty-person]').forEach(input=>input.onchange=async()=>{const pi=+input.dataset.qtyPerson,pj=+input.dataset.qtyProduct;d.people[pi].quantities[pj]=Math.max(0,Math.floor(Number(input.value)||0));await save(i)});
       s.querySelectorAll('[data-paid]').forEach(input=>input.onchange=async()=>{d.people[+input.dataset.paid].paid=input.checked;await save(i)});
       s.querySelectorAll('[data-payment]').forEach(select=>select.onchange=()=>{const pi=+select.dataset.payment;if(select.value==='__add__'){paymentModeModal(i,pi);return}d.people[pi].paymentMode=select.value;save(i)});
+      if(editable){
+        s.querySelectorAll('[data-drag-person]').forEach(handle=>handle.addEventListener('dragstart',e=>{
+          const row=handle.closest('[data-person-row]');
+          e.dataTransfer.effectAllowed='move';
+          e.dataTransfer.setData('text/plain',handle.dataset.dragPerson);
+          row.classList.add('dragging');
+        }));
+        s.querySelectorAll('[data-person-row]').forEach(row=>{
+          row.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';row.classList.add('drag-over')});
+          row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));
+          row.addEventListener('drop',async e=>{
+            e.preventDefault();row.classList.remove('drag-over');
+            const from=Number(e.dataTransfer.getData('text/plain')),to=Number(row.dataset.personRow);
+            if(!Number.isInteger(from)||from===to||from<0||from>=d.people.length)return;
+            const [person]=d.people.splice(from,1);d.people.splice(to,0,person);await save(i);
+          });
+          row.addEventListener('dragend',()=>row.classList.remove('dragging','drag-over'));
+        });
+      }
     }
     function initials(name){return name.trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
     function money(value){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(Number(value)||0)}
