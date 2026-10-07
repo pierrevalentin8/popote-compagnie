@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f6f2e8">
   <title>Popote & Cie — Le carnet du bar</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
@@ -32,9 +33,11 @@
   <div class="overlay" id="overlay" role="dialog" aria-modal="true"><div class="modal" id="modal"></div></div>
   <div class="toast" id="toast"></div>
   <script type="module">
-    import { auth, db } from './firebase-config.js';
-    import { signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-    import { doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+    const firebaseConfig={apiKey:'AIzaSyAJFyX4n6s5ER6_LiS22JtJ01VBvR8YM0g',authDomain:'popotecompagnie-2e79f.firebaseapp.com',projectId:'popotecompagnie-2e79f',storageBucket:'popotecompagnie-2e79f.firebasestorage.app',messagingSenderId:'643014117897',appId:'1:643014117897:web:254fd7aad817ed902086d8'};
+    const firebaseApp=initializeApp(firebaseConfig),auth=getAuth(firebaseApp),db=getFirestore(firebaseApp);
     const ADMIN_EMAIL='pierre.valentin8@gmail.com';
     const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
     const app=document.querySelector('#app'), overlay=document.querySelector('#overlay'), modal=document.querySelector('#modal');
