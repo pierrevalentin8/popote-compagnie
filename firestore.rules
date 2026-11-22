@@ -31,6 +31,11 @@ service cloud.firestore {
     match /mutations/{mutationId} {
       allow read, create, update, delete: if isAdmin();
     }
+    // Projection publique des noms présents chaque mois, sans dates personnelles.
+    match /roster/{rosterId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
     // Indique si le compte admin a déjà terminé sa première connexion.
     match /system/setup {
       allow read: if true;
