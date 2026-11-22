@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'pierre.valentin8@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    // Les tableaux 2026 peuvent être consultés sans compte.
+    // Seule l'adresse admin vérifiée peut les créer ou les modifier.
+    match /months/{monthId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Seul l’administrateur peut consulter ou modifier les dépenses de courses.
+    match /shopping/{monthId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    // Les stocks prévisionnels sont accessibles uniquement à l’admin.
+    // Ecusson orders and sales are private to the administrator.
+    match /patches/{patchId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+    match /inventory/{inventoryId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+    // Le registre des mouvements de personnel est réservé à l’administrateur.
+    match /mutations/{mutationId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+    // Indique si le compte admin a déjà terminé sa première connexion.
+    match /system/setup {
+      allow read: if true;
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+// Tout autre chemin reste inaccessible.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
